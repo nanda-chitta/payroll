@@ -10,9 +10,21 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_18_104057) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_18_111528) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "departments", force: :cascade do |t|
+    t.string "code", null: false
+    t.datetime "created_at", null: false
+    t.text "description"
+    t.string "name", null: false
+    t.datetime "updated_at", null: false
+    t.index ["code"], name: "index_departments_on_code", unique: true
+    t.index ["name"], name: "index_departments_on_name", unique: true
+    t.check_constraint "char_length(TRIM(BOTH FROM code)) > 0", name: "departments_code_present"
+    t.check_constraint "char_length(TRIM(BOTH FROM name)) > 0", name: "departments_name_present"
+  end
 
   create_table "employees", force: :cascade do |t|
     t.string "country", null: false
@@ -37,8 +49,20 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_18_104057) do
     t.index ["employee_code"], name: "index_employees_on_employee_code", unique: true
     t.index ["job_title"], name: "index_employees_on_job_title"
     t.index ["status"], name: "index_employees_on_status"
-    t.check_constraint "employment_type::text = ANY (ARRAY['full_time'::character varying, 'part_time'::character varying, 'contract'::character varying, 'intern'::character varying]::text[])", name: "employees_employment_type_valid"
+    t.check_constraint "employment_type::text = ANY (ARRAY['full_time'::character varying::text, 'part_time'::character varying::text, 'contract'::character varying::text, 'intern'::character varying::text])", name: "employees_employment_type_valid"
     t.check_constraint "salary >= 0::numeric", name: "employees_salary_non_negative"
-    t.check_constraint "status::text = ANY (ARRAY['active'::character varying, 'inactive'::character varying, 'terminated'::character varying]::text[])", name: "employees_status_valid"
+    t.check_constraint "status::text = ANY (ARRAY['active'::character varying::text, 'inactive'::character varying::text, 'terminated'::character varying::text])", name: "employees_status_valid"
+  end
+
+  create_table "job_titles", force: :cascade do |t|
+    t.string "code", null: false
+    t.datetime "created_at", null: false
+    t.text "description"
+    t.string "name", null: false
+    t.datetime "updated_at", null: false
+    t.index ["code"], name: "index_job_titles_on_code", unique: true
+    t.index ["name"], name: "index_job_titles_on_name", unique: true
+    t.check_constraint "char_length(TRIM(BOTH FROM code)) > 0", name: "job_titles_code_present"
+    t.check_constraint "char_length(TRIM(BOTH FROM name)) > 0", name: "job_titles_name_present"
   end
 end
