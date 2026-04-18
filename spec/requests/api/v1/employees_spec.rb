@@ -25,7 +25,7 @@ RSpec.describe 'Api::V1::Employees', type: :request do
 
       post '/api/v1/employees', params: {
         employee: employee_payload(department:, job_title:, employee_code: 'EMP-NEW')
-      }
+      }, as: :json
 
       expect(response).to have_http_status(:created)
       body = response.parsed_body.fetch('employee')
@@ -37,7 +37,7 @@ RSpec.describe 'Api::V1::Employees', type: :request do
     end
 
     it 'returns validation errors' do
-      post '/api/v1/employees', params: { employee: { first_name: '' } }
+      post '/api/v1/employees', params: { employee: { first_name: '' } }, as: :json
 
       expect(response).to have_http_status(:unprocessable_content)
       expect(response.parsed_body['errors']).to include('employee_code')
@@ -56,7 +56,7 @@ RSpec.describe 'Api::V1::Employees', type: :request do
           salary_amount: 95_000,
           country: 'United States'
         }
-      }
+      }, as: :json
 
       expect(response).to have_http_status(:ok)
       employee.reload
