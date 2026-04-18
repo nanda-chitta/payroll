@@ -2,12 +2,12 @@ module Api
   module V1
     class EmployeesController < ApplicationController
       def index
-        result = Employees::Search.call(params:)
-
-        render json: {
-          employees: result[:employees].map { |employee| serialize_employee(employee) },
-          meta: result[:meta]
-        }
+        render_result(employee_search.call(params:)) do |result|
+          {
+            employees: result[:employees].map { |employee| serialize_employee(employee) },
+            meta: result[:meta]
+          }
+        end
       end
 
       def show
@@ -15,28 +15,36 @@ module Api
       end
 
       def create
-        employee = Employees::Upsert.call(params: employee_params)
-
-        render json: { employee: serialize_employee(employee) }, status: :created
-      rescue ActiveRecord::RecordInvalid => e
-        render_validation_errors(e.record)
+        render_result(employee_upsert.call(params: employee_params), success_status: :created) do |employee|
+          { employee: serialize_employee(employee) }
+        end
       end
 
       def update
-        updated_employee = Employees::Upsert.call(employee:, params: employee_params)
-
-        render json: { employee: serialize_employee(updated_employee) }
-      rescue ActiveRecord::RecordInvalid => e
-        render_validation_errors(e.record)
+        render_result(employee_upsert.call(employee:, params: employee_params)) do |updated_employee|
+          { employee: serialize_employee(updated_employee) }
+        end
       end
 
       def destroy
-        employee.destroy!
+        result = employee_destroy.call(employee:)
 
-        head :no_content
+        result.success? ? head(:no_content) : render_domain_failure(result.failure)
       end
 
       private
+
+      def employee_search
+        AppContainer['payroll.employees.search']
+      end
+
+      def employee_upsert
+        AppContainer['payroll.employees.upsert']
+      end
+
+      def employee_destroy
+        AppContainer['payroll.employees.destroy']
+      end
 
       def employee
         @employee ||= Employee.includes(:department, :job_title, :employee_addresses, :employee_salaries).find(params[:id])
@@ -134,10 +142,6 @@ module Api
           effective_from: salary.effective_from,
           effective_to: salary.effective_to
         }
-      end
-
-      def render_validation_errors(record)
-        render json: { errors: record.errors.to_hash(true) }, status: :unprocessable_content
       end
     end
   end
