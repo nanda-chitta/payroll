@@ -42,3 +42,4 @@
 payroll-web/node_modules
 payroll-web/package-lock.json
 dump.rdb
+coverage
