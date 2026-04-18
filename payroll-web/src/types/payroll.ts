@@ -62,6 +62,13 @@ export type EmployeeFilters = {
   query: string
 }
 
+export type PaginationMeta = {
+  page: number
+  limit: number
+  total: number
+  total_pages: number
+}
+
 export type EmployeeFormValues = {
   id?: number
   employee_code: string

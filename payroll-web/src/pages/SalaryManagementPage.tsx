@@ -1,7 +1,7 @@
 import { Alert, Box, Button, Container, Typography } from '@mui/material'
-import { useMemo, useState } from 'react'
+import type { GridPaginationModel } from '@mui/x-data-grid'
+import { lazy, Suspense, useMemo, useState } from 'react'
 import { EmployeeFormDialog } from '../components/EmployeeFormDialog'
-import { EmployeeTable } from '../components/EmployeeTable'
 import { FilterToolbar } from '../components/FilterToolbar'
 import { MetricCard } from '../components/MetricCard'
 import { SalaryInsightsPanel } from '../components/SalaryInsightsPanel'
@@ -11,6 +11,10 @@ import { useSalaryInsights } from '../hooks/useSalaryInsights'
 import { money } from '../utils/formatters'
 import type { Employee, EmployeeFilters, EmployeeFormValues } from '../types/payroll'
 
+const EmployeeTable = lazy(() =>
+  import('../components/EmployeeTable').then((module) => ({ default: module.EmployeeTable })),
+)
+
 export function SalaryManagementPage() {
   const { lookups, error: lookupsError, reload: reloadLookups } = useLookups()
   const [filters, setFilters] = useState<EmployeeFilters>({ country: '', jobTitleId: '', query: '' })
@@ -18,16 +22,18 @@ export function SalaryManagementPage() {
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
+  const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({ page: 0, pageSize: 25 })
   const [pageError, setPageError] = useState('')
 
   const {
     employees,
     error: employeesError,
     isLoading: employeesLoading,
+    meta,
     reload: reloadEmployees,
     saveEmployee,
     deleteEmployee,
-  } = useEmployees(filters)
+  } = useEmployees(filters, paginationModel)
 
   const {
     insights,
@@ -112,9 +118,15 @@ export function SalaryManagementPage() {
           <FilterToolbar
             filters={filters}
             lookups={lookups}
-            onFiltersChange={setFilters}
+            onFiltersChange={(nextFilters) => {
+              setFilters(nextFilters)
+              setPaginationModel((currentModel) => ({ ...currentModel, page: 0 }))
+            }}
             onQueryDraftChange={setQueryDraft}
-            onSearch={() => setFilters((currentFilters) => ({ ...currentFilters, query: queryDraft }))}
+            onSearch={() => {
+              setFilters((currentFilters) => ({ ...currentFilters, query: queryDraft }))
+              setPaginationModel((currentModel) => ({ ...currentModel, page: 0 }))
+            }}
             queryDraft={queryDraft}
           />
 
@@ -133,7 +145,17 @@ export function SalaryManagementPage() {
 
           <SalaryInsightsPanel country={filters.country} insights={insights} selectedJobTitle={selectedJobTitle} />
 
-          <EmployeeTable employees={employees} isLoading={employeesLoading} onDelete={handleDelete} onEdit={handleEdit} />
+          <Suspense fallback={<MetricCard isLoading title="Employees" value="Loading" />}>
+            <EmployeeTable
+              employees={employees}
+              isLoading={employeesLoading}
+              onDelete={handleDelete}
+              onEdit={handleEdit}
+              onPaginationModelChange={setPaginationModel}
+              paginationModel={paginationModel}
+              rowCount={meta.total}
+            />
+          </Suspense>
         </Box>
       </Container>
 
