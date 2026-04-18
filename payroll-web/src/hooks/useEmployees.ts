@@ -33,6 +33,7 @@ export function useEmployees(filters: EmployeeFilters, pagination: EmployeePagin
       if (filters.country) params.set('country', filters.country)
       if (filters.jobTitleId) params.set('job_title_id', filters.jobTitleId)
       if (filters.query.trim()) params.set('query', filters.query.trim())
+      if (filters.activeOnly) params.set('status', 'active')
 
       const data = await apiGet<{ employees: Employee[]; meta: PaginationMeta }>(`/api/v1/employees?${params}`)
       setEmployees(data.employees)
@@ -42,7 +43,7 @@ export function useEmployees(filters: EmployeeFilters, pagination: EmployeePagin
     } finally {
       setIsLoading(false)
     }
-  }, [filters.country, filters.jobTitleId, filters.query, pagination.page, pagination.pageSize])
+  }, [filters.activeOnly, filters.country, filters.jobTitleId, filters.query, pagination.page, pagination.pageSize])
 
   useEffect(() => {
     loadEmployees()

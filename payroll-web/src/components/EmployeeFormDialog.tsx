@@ -1,17 +1,16 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
   Box,
-  Button,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
   MenuItem,
-  TextField,
   Typography,
 } from '@mui/material'
 import { Controller, useForm } from 'react-hook-form'
 import { useEffect } from 'react'
+import { Button, DatePicker, RadioButtonGroup, TextBox } from './ui'
 import { employeeSchema } from '../schemas/employeeSchema'
 import type { Employee, EmployeeFormValues, Lookups } from '../types/payroll'
 import type { Control, Resolver } from 'react-hook-form'
@@ -66,11 +65,11 @@ export function EmployeeFormDialog({
           <FormText control={control} label="Middle name" name="middle_name" />
           <FormText control={control} label="Last name" name="last_name" />
           <FormText control={control} label="Email" name="email" type="email" />
-          <FormText control={control} label="Hire date" name="hire_date" type="date" />
+          <FormDate control={control} label="Hire date" name="hire_date" />
           <FormSelect control={control} label="Department" name="department_id" options={lookups.departments} />
           <FormSelect control={control} label="Job title" name="job_title_id" options={lookups.job_titles} />
-          <FormTextSelect control={control} label="Employment type" name="employment_type" options={lookups.employment_types} />
-          <FormTextSelect control={control} label="Status" name="status" options={lookups.statuses} />
+          <FormRadioGroup control={control} label="Employment type" name="employment_type" options={lookups.employment_types} />
+          <FormRadioGroup control={control} label="Status" name="status" options={lookups.statuses} />
           <FormText control={control} label="Country" name="country" />
           <FormText control={control} label="City" name="city" />
           <FormText control={control} label="Address line 1" name="line1" />
@@ -79,7 +78,7 @@ export function EmployeeFormDialog({
           <FormText control={control} label="Postal code" name="postal_code" />
           <FormText control={control} label="Salary" name="salary_amount" type="number" />
           <FormText control={control} label="Currency" name="currency" />
-          <FormTextSelect control={control} label="Pay frequency" name="pay_frequency" options={lookups.pay_frequencies} />
+          <FormRadioGroup control={control} label="Pay frequency" name="pay_frequency" options={lookups.pay_frequencies} />
         </Box>
       </DialogContent>
       <DialogActions>
@@ -108,13 +107,37 @@ function FormText({
       control={control}
       name={name}
       render={({ field, fieldState }) => (
-        <TextField
+        <TextBox
           {...field}
           error={Boolean(fieldState.error)}
           helperText={fieldState.error?.message}
           label={label}
-          slotProps={type === 'date' ? { inputLabel: { shrink: true } } : undefined}
           type={type}
+        />
+      )}
+    />
+  )
+}
+
+function FormDate({
+  control,
+  label,
+  name,
+}: {
+  control: Control<EmployeeFormValues>
+  label: string
+  name: keyof EmployeeFormValues
+}) {
+  return (
+    <Controller
+      control={control}
+      name={name}
+      render={({ field, fieldState }) => (
+        <DatePicker
+          {...field}
+          error={Boolean(fieldState.error)}
+          helperText={fieldState.error?.message}
+          label={label}
         />
       )}
     />
@@ -137,19 +160,19 @@ function FormSelect({
       control={control}
       name={name}
       render={({ field, fieldState }) => (
-        <TextField {...field} error={Boolean(fieldState.error)} helperText={fieldState.error?.message} label={label} select>
+        <TextBox {...field} error={Boolean(fieldState.error)} helperText={fieldState.error?.message} label={label} select>
           {options.map((option) => (
             <MenuItem key={option.id} value={option.id.toString()}>
               {option.name}
             </MenuItem>
           ))}
-        </TextField>
+        </TextBox>
       )}
     />
   )
 }
 
-function FormTextSelect({
+function FormRadioGroup({
   control,
   label,
   name,
@@ -165,13 +188,14 @@ function FormTextSelect({
       control={control}
       name={name}
       render={({ field, fieldState }) => (
-        <TextField {...field} error={Boolean(fieldState.error)} helperText={fieldState.error?.message} label={label} select>
-          {options.map((option) => (
-            <MenuItem key={option} value={option}>
-              {option.replace('_', ' ')}
-            </MenuItem>
-          ))}
-        </TextField>
+        <RadioButtonGroup
+          error={Boolean(fieldState.error)}
+          helperText={fieldState.error?.message}
+          label={label}
+          onChange={field.onChange}
+          options={options.map((option) => ({ label: option.replace('_', ' '), value: option }))}
+          value={field.value?.toString() ?? ''}
+        />
       )}
     />
   )

@@ -1,10 +1,11 @@
-import { Alert, Box, Button, Container, Typography } from '@mui/material'
+import { Alert, Box, Container, Typography } from '@mui/material'
 import type { GridPaginationModel } from '@mui/x-data-grid'
 import { lazy, Suspense, useMemo, useState } from 'react'
 import { EmployeeFormDialog } from '../components/EmployeeFormDialog'
 import { FilterToolbar } from '../components/FilterToolbar'
 import { MetricCard } from '../components/MetricCard'
 import { SalaryInsightsPanel } from '../components/SalaryInsightsPanel'
+import { Button } from '../components/ui'
 import { useEmployees } from '../hooks/useEmployees'
 import { useLookups } from '../hooks/useLookups'
 import { useSalaryInsights } from '../hooks/useSalaryInsights'
@@ -17,7 +18,7 @@ const EmployeeTable = lazy(() =>
 
 export function SalaryManagementPage() {
   const { lookups, error: lookupsError, reload: reloadLookups } = useLookups()
-  const [filters, setFilters] = useState<EmployeeFilters>({ country: '', jobTitleId: '', query: '' })
+  const [filters, setFilters] = useState<EmployeeFilters>({ activeOnly: false, country: '', jobTitleId: '', query: '' })
   const [queryDraft, setQueryDraft] = useState('')
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)

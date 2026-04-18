@@ -1,5 +1,6 @@
-import { Box, Button, MenuItem, Paper, TextField } from '@mui/material'
+import { Box, MenuItem, Paper } from '@mui/material'
 import type { FormEvent } from 'react'
+import { Button, CheckBox, TextBox } from './ui'
 import type { EmployeeFilters, Lookups } from '../types/payroll'
 
 type FilterToolbarProps = {
@@ -36,14 +37,14 @@ export function FilterToolbar({
           gap: 2,
         }}
       >
-        <TextField
+        <TextBox
           fullWidth
           label="Search employees"
           onChange={(event) => onQueryDraftChange(event.target.value)}
           placeholder="Name, code, or email"
           value={queryDraft}
         />
-        <TextField
+        <TextBox
           label="Country"
           onChange={(event) => onFiltersChange({ ...filters, country: event.target.value })}
           select
@@ -56,8 +57,8 @@ export function FilterToolbar({
               {country}
             </MenuItem>
           ))}
-        </TextField>
-        <TextField
+        </TextBox>
+        <TextBox
           label="Job title"
           onChange={(event) => onFiltersChange({ ...filters, jobTitleId: event.target.value })}
           select
@@ -70,7 +71,12 @@ export function FilterToolbar({
               {jobTitle.name}
             </MenuItem>
           ))}
-        </TextField>
+        </TextBox>
+        <CheckBox
+          checked={filters.activeOnly}
+          label="Active employees"
+          onChange={(activeOnly) => onFiltersChange({ ...filters, activeOnly })}
+        />
         <Box>
           <Button type="submit" variant="contained">
             Search

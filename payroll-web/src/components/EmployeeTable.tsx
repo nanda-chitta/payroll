@@ -1,6 +1,7 @@
-import { Box, Button, Chip, Paper, Typography } from '@mui/material'
-import { DataGrid, type GridColDef, type GridPaginationModel } from '@mui/x-data-grid'
+import { Box, Chip, Paper, Typography } from '@mui/material'
+import type { GridColDef, GridPaginationModel } from '@mui/x-data-grid'
 import { useMemo } from 'react'
+import { Button, DataGrid } from './ui'
 import { money } from '../utils/formatters'
 import type { Employee } from '../types/payroll'
 

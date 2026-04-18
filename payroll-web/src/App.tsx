@@ -1,12 +1,15 @@
 import { CssBaseline, ThemeProvider } from '@mui/material'
-import { SalaryManagementPage } from './pages/SalaryManagementPage'
+import { BrowserRouter } from 'react-router'
+import { AppRoutes } from './routes/AppRoutes'
 import { theme } from './theme'
 
 function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <SalaryManagementPage />
+      <BrowserRouter>
+        <AppRoutes />
+      </BrowserRouter>
     </ThemeProvider>
   )
 }

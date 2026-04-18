@@ -57,6 +57,7 @@ export type SalaryInsights = {
 }
 
 export type EmployeeFilters = {
+  activeOnly: boolean
   country: string
   jobTitleId: string
   query: string
