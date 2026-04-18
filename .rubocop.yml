@@ -1,0 +1,23 @@
+# Omakase Ruby styling for Rails
+inherit_gem:
+  rubocop-rails-omakase: rubocop.yml
+
+AllCops:
+  TargetRubyVersion: 3.4
+  TargetRailsVersion: 8.1
+  NewCops: enable
+  SuggestExtensions: false
+  Exclude:
+    - bin/**/*
+    - db/schema.rb
+    - db/migrate/**/*
+    - payroll-web/node_modules/**/*
+    - vendor/**/*
+    - config/**/*
+    - tmp/**/*
+    - log/**/*
+    - spec/**/*
+
+Style/StringLiterals:
+  EnforcedStyle: single_quotes
+  ConsistentQuotesInMultiline: true
