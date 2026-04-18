@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_18_112439) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_18_112919) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -48,6 +48,29 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_18_112439) do
     t.check_constraint "char_length(TRIM(BOTH FROM country)) > 0", name: "employee_addresses_country_present"
     t.check_constraint "char_length(TRIM(BOTH FROM line1)) > 0", name: "employee_addresses_line1_present"
     t.check_constraint "char_length(TRIM(BOTH FROM postal_code)) > 0", name: "employee_addresses_postal_code_present"
+  end
+
+  create_table "employee_salaries", force: :cascade do |t|
+    t.decimal "amount", precision: 12, scale: 2, null: false
+    t.datetime "created_at", null: false
+    t.string "currency", default: "USD", null: false
+    t.date "effective_from", null: false
+    t.date "effective_to"
+    t.bigint "employee_id", null: false
+    t.text "notes"
+    t.string "pay_frequency", default: "monthly", null: false
+    t.string "reason"
+    t.datetime "updated_at", null: false
+    t.index ["currency"], name: "index_employee_salaries_on_currency"
+    t.index ["effective_to"], name: "index_employee_salaries_on_effective_to"
+    t.index ["employee_id", "effective_from"], name: "index_employee_salaries_on_employee_id_and_effective_from", unique: true
+    t.index ["employee_id", "effective_to"], name: "index_employee_salaries_on_employee_id_and_effective_to"
+    t.index ["employee_id"], name: "index_employee_salaries_on_employee_id"
+    t.index ["pay_frequency"], name: "index_employee_salaries_on_pay_frequency"
+    t.check_constraint "amount >= 0::numeric", name: "employee_salaries_amount_non_negative"
+    t.check_constraint "char_length(TRIM(BOTH FROM currency)) > 0", name: "employee_salaries_currency_present"
+    t.check_constraint "effective_to IS NULL OR effective_to >= effective_from", name: "employee_salaries_date_range_valid"
+    t.check_constraint "pay_frequency::text = ANY (ARRAY['monthly'::character varying, 'yearly'::character varying, 'hourly'::character varying, 'weekly'::character varying]::text[])", name: "employee_salaries_pay_frequency_valid"
   end
 
   create_table "employees", force: :cascade do |t|
@@ -96,6 +119,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_18_112439) do
   end
 
   add_foreign_key "employee_addresses", "employees", on_delete: :cascade
+  add_foreign_key "employee_salaries", "employees", on_delete: :cascade
   add_foreign_key "employees", "departments", on_delete: :restrict
   add_foreign_key "employees", "job_titles", on_delete: :restrict
 end
