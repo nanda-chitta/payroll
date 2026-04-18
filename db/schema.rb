@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_18_111528) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_18_111734) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -27,31 +27,36 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_18_111528) do
   end
 
   create_table "employees", force: :cascade do |t|
-    t.string "country", null: false
     t.datetime "created_at", null: false
-    t.string "currency", default: "USD", null: false
-    t.string "department", null: false
+    t.date "date_of_birth"
+    t.bigint "department_id", null: false
     t.string "email", null: false
     t.string "employee_code", null: false
     t.string "employment_type", default: "full_time", null: false
     t.string "first_name", null: false
     t.date "hire_date", null: false
-    t.string "job_title", null: false
+    t.bigint "job_title_id", null: false
     t.string "last_name", null: false
-    t.decimal "salary", precision: 12, scale: 2, null: false
+    t.string "middle_name"
     t.string "status", default: "active", null: false
+    t.date "termination_date"
     t.datetime "updated_at", null: false
-    t.index ["country", "job_title"], name: "index_employees_on_country_and_job_title"
-    t.index ["country", "status"], name: "index_employees_on_country_and_status"
-    t.index ["country"], name: "index_employees_on_country"
-    t.index ["department"], name: "index_employees_on_department"
-    t.index ["email"], name: "index_employees_on_email", unique: true
+    t.index "lower((email)::text)", name: "index_employees_on_lower_email", unique: true
+    t.index ["department_id", "status"], name: "index_employees_on_department_id_and_status"
+    t.index ["department_id"], name: "index_employees_on_department_id"
     t.index ["employee_code"], name: "index_employees_on_employee_code", unique: true
-    t.index ["job_title"], name: "index_employees_on_job_title"
+    t.index ["employment_type"], name: "index_employees_on_employment_type"
+    t.index ["hire_date"], name: "index_employees_on_hire_date"
+    t.index ["job_title_id", "status"], name: "index_employees_on_job_title_id_and_status"
+    t.index ["job_title_id"], name: "index_employees_on_job_title_id"
     t.index ["status"], name: "index_employees_on_status"
-    t.check_constraint "employment_type::text = ANY (ARRAY['full_time'::character varying::text, 'part_time'::character varying::text, 'contract'::character varying::text, 'intern'::character varying::text])", name: "employees_employment_type_valid"
-    t.check_constraint "salary >= 0::numeric", name: "employees_salary_non_negative"
-    t.check_constraint "status::text = ANY (ARRAY['active'::character varying::text, 'inactive'::character varying::text, 'terminated'::character varying::text])", name: "employees_status_valid"
+    t.check_constraint "char_length(TRIM(BOTH FROM email)) > 0", name: "employees_email_present"
+    t.check_constraint "char_length(TRIM(BOTH FROM employee_code)) > 0", name: "employees_code_present"
+    t.check_constraint "char_length(TRIM(BOTH FROM first_name)) > 0", name: "employees_first_name_present"
+    t.check_constraint "char_length(TRIM(BOTH FROM last_name)) > 0", name: "employees_last_name_present"
+    t.check_constraint "employment_type::text = ANY (ARRAY['full_time'::character varying, 'part_time'::character varying, 'contract'::character varying, 'intern'::character varying]::text[])", name: "employees_employment_type_valid"
+    t.check_constraint "status::text = ANY (ARRAY['active'::character varying, 'inactive'::character varying, 'terminated'::character varying, 'on_leave'::character varying]::text[])", name: "employees_status_valid"
+    t.check_constraint "termination_date IS NULL OR termination_date >= hire_date", name: "employees_termination_date_valid"
   end
 
   create_table "job_titles", force: :cascade do |t|
@@ -65,4 +70,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_18_111528) do
     t.check_constraint "char_length(TRIM(BOTH FROM code)) > 0", name: "job_titles_code_present"
     t.check_constraint "char_length(TRIM(BOTH FROM name)) > 0", name: "job_titles_name_present"
   end
+
+  add_foreign_key "employees", "departments", on_delete: :restrict
+  add_foreign_key "employees", "job_titles", on_delete: :restrict
 end
