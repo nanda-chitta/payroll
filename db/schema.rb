@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_18_111734) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_18_112439) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -24,6 +24,30 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_18_111734) do
     t.index ["name"], name: "index_departments_on_name", unique: true
     t.check_constraint "char_length(TRIM(BOTH FROM code)) > 0", name: "departments_code_present"
     t.check_constraint "char_length(TRIM(BOTH FROM name)) > 0", name: "departments_name_present"
+  end
+
+  create_table "employee_addresses", force: :cascade do |t|
+    t.string "address_type", default: "home", null: false
+    t.string "city", null: false
+    t.string "country", null: false
+    t.datetime "created_at", null: false
+    t.bigint "employee_id", null: false
+    t.string "line1", null: false
+    t.string "line2"
+    t.string "postal_code", null: false
+    t.boolean "primary_address", default: false, null: false
+    t.string "state"
+    t.datetime "updated_at", null: false
+    t.index ["address_type"], name: "index_employee_addresses_on_address_type"
+    t.index ["country"], name: "index_employee_addresses_on_country"
+    t.index ["employee_id", "address_type"], name: "index_employee_addresses_on_employee_id_and_address_type"
+    t.index ["employee_id", "primary_address"], name: "index_employee_addresses_one_primary_per_employee", unique: true, where: "(primary_address = true)"
+    t.index ["employee_id"], name: "index_employee_addresses_on_employee_id"
+    t.check_constraint "address_type::text = ANY (ARRAY['home'::character varying, 'permanent'::character varying, 'work'::character varying, 'mailing'::character varying]::text[])", name: "employee_addresses_type_valid"
+    t.check_constraint "char_length(TRIM(BOTH FROM city)) > 0", name: "employee_addresses_city_present"
+    t.check_constraint "char_length(TRIM(BOTH FROM country)) > 0", name: "employee_addresses_country_present"
+    t.check_constraint "char_length(TRIM(BOTH FROM line1)) > 0", name: "employee_addresses_line1_present"
+    t.check_constraint "char_length(TRIM(BOTH FROM postal_code)) > 0", name: "employee_addresses_postal_code_present"
   end
 
   create_table "employees", force: :cascade do |t|
@@ -71,6 +95,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_18_111734) do
     t.check_constraint "char_length(TRIM(BOTH FROM name)) > 0", name: "job_titles_name_present"
   end
 
+  add_foreign_key "employee_addresses", "employees", on_delete: :cascade
   add_foreign_key "employees", "departments", on_delete: :restrict
   add_foreign_key "employees", "job_titles", on_delete: :restrict
 end
