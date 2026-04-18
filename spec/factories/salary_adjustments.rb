@@ -1,13 +1,13 @@
 FactoryBot.define do
   factory :salary_adjustment do
-    employee { nil }
-    employee_salary { nil }
-    previous_amount { "9.99" }
-    new_amount { "9.99" }
-    change_amount { "9.99" }
-    change_percentage { "9.99" }
-    reason { "MyString" }
-    effective_from { "2026-04-18" }
-    notes { "MyText" }
+    employee_salary
+    employee { employee_salary.employee }
+    previous_amount { 75_000.00 }
+    new_amount { 82_500.00 }
+    change_amount { 7_500.00 }
+    change_percentage { 10.00 }
+    reason { 'annual_increment' }
+    effective_from { Date.current }
+    notes { nil }
   end
 end

@@ -1,13 +1,17 @@
 FactoryBot.define do
   factory :employee_address do
-    employee { nil }
-    address_type { "MyString" }
-    line1 { "MyString" }
-    line2 { "MyString" }
-    city { "MyString" }
-    state { "MyString" }
-    postal_code { "MyString" }
-    country { "MyString" }
+    employee
+    address_type { 'home' }
+    line1 { '123 Payroll Street' }
+    line2 { nil }
+    city { 'Bengaluru' }
+    state { 'Karnataka' }
+    postal_code { '560001' }
+    country { 'India' }
     primary_address { false }
+
+    trait :primary do
+      primary_address { true }
+    end
   end
 end

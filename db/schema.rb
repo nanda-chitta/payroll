@@ -43,7 +43,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_18_113356) do
     t.index ["employee_id", "address_type"], name: "index_employee_addresses_on_employee_id_and_address_type"
     t.index ["employee_id", "primary_address"], name: "index_employee_addresses_one_primary_per_employee", unique: true, where: "(primary_address = true)"
     t.index ["employee_id"], name: "index_employee_addresses_on_employee_id"
-    t.check_constraint "address_type::text = ANY (ARRAY['home'::character varying, 'permanent'::character varying, 'work'::character varying, 'mailing'::character varying]::text[])", name: "employee_addresses_type_valid"
+    t.check_constraint "address_type::text = ANY (ARRAY['home'::character varying::text, 'permanent'::character varying::text, 'work'::character varying::text, 'mailing'::character varying::text])", name: "employee_addresses_type_valid"
     t.check_constraint "char_length(TRIM(BOTH FROM city)) > 0", name: "employee_addresses_city_present"
     t.check_constraint "char_length(TRIM(BOTH FROM country)) > 0", name: "employee_addresses_country_present"
     t.check_constraint "char_length(TRIM(BOTH FROM line1)) > 0", name: "employee_addresses_line1_present"
@@ -70,7 +70,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_18_113356) do
     t.check_constraint "amount >= 0::numeric", name: "employee_salaries_amount_non_negative"
     t.check_constraint "char_length(TRIM(BOTH FROM currency)) > 0", name: "employee_salaries_currency_present"
     t.check_constraint "effective_to IS NULL OR effective_to >= effective_from", name: "employee_salaries_date_range_valid"
-    t.check_constraint "pay_frequency::text = ANY (ARRAY['monthly'::character varying, 'yearly'::character varying, 'hourly'::character varying, 'weekly'::character varying]::text[])", name: "employee_salaries_pay_frequency_valid"
+    t.check_constraint "pay_frequency::text = ANY (ARRAY['monthly'::character varying::text, 'yearly'::character varying::text, 'hourly'::character varying::text, 'weekly'::character varying::text])", name: "employee_salaries_pay_frequency_valid"
   end
 
   create_table "employees", force: :cascade do |t|
@@ -101,8 +101,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_18_113356) do
     t.check_constraint "char_length(TRIM(BOTH FROM employee_code)) > 0", name: "employees_code_present"
     t.check_constraint "char_length(TRIM(BOTH FROM first_name)) > 0", name: "employees_first_name_present"
     t.check_constraint "char_length(TRIM(BOTH FROM last_name)) > 0", name: "employees_last_name_present"
-    t.check_constraint "employment_type::text = ANY (ARRAY['full_time'::character varying, 'part_time'::character varying, 'contract'::character varying, 'intern'::character varying]::text[])", name: "employees_employment_type_valid"
-    t.check_constraint "status::text = ANY (ARRAY['active'::character varying, 'inactive'::character varying, 'terminated'::character varying, 'on_leave'::character varying]::text[])", name: "employees_status_valid"
+    t.check_constraint "employment_type::text = ANY (ARRAY['full_time'::character varying::text, 'part_time'::character varying::text, 'contract'::character varying::text, 'intern'::character varying::text])", name: "employees_employment_type_valid"
+    t.check_constraint "status::text = ANY (ARRAY['active'::character varying::text, 'inactive'::character varying::text, 'terminated'::character varying::text, 'on_leave'::character varying::text])", name: "employees_status_valid"
     t.check_constraint "termination_date IS NULL OR termination_date >= hire_date", name: "employees_termination_date_valid"
   end
 
@@ -138,7 +138,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_18_113356) do
     t.check_constraint "change_amount = (new_amount - previous_amount)", name: "salary_adjustments_change_amount_valid"
     t.check_constraint "new_amount >= 0::numeric", name: "salary_adjustments_new_amount_non_negative"
     t.check_constraint "previous_amount >= 0::numeric", name: "salary_adjustments_previous_amount_non_negative"
-    t.check_constraint "reason::text = ANY (ARRAY['annual_increment'::character varying, 'promotion'::character varying, 'correction'::character varying, 'market_adjustment'::character varying, 'demotion'::character varying, 'other'::character varying]::text[])", name: "salary_adjustments_reason_valid"
+    t.check_constraint "reason::text = ANY (ARRAY['annual_increment'::character varying::text, 'promotion'::character varying::text, 'correction'::character varying::text, 'market_adjustment'::character varying::text, 'demotion'::character varying::text, 'other'::character varying::text])", name: "salary_adjustments_reason_valid"
   end
 
   add_foreign_key "employee_addresses", "employees", on_delete: :cascade
