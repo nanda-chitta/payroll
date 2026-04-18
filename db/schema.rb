@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_18_112919) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_18_113356) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -118,8 +118,33 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_18_112919) do
     t.check_constraint "char_length(TRIM(BOTH FROM name)) > 0", name: "job_titles_name_present"
   end
 
+  create_table "salary_adjustments", force: :cascade do |t|
+    t.decimal "change_amount", precision: 12, scale: 2, null: false
+    t.decimal "change_percentage", precision: 8, scale: 2
+    t.datetime "created_at", null: false
+    t.date "effective_from", null: false
+    t.bigint "employee_id", null: false
+    t.bigint "employee_salary_id", null: false
+    t.decimal "new_amount", precision: 12, scale: 2, null: false
+    t.text "notes"
+    t.decimal "previous_amount", precision: 12, scale: 2, null: false
+    t.string "reason", null: false
+    t.datetime "updated_at", null: false
+    t.index ["effective_from"], name: "index_salary_adjustments_on_effective_from"
+    t.index ["employee_id", "effective_from"], name: "index_salary_adjustments_on_employee_id_and_effective_from"
+    t.index ["employee_id"], name: "index_salary_adjustments_on_employee_id"
+    t.index ["employee_salary_id"], name: "index_salary_adjustments_on_employee_salary_id"
+    t.index ["reason"], name: "index_salary_adjustments_on_reason"
+    t.check_constraint "change_amount = (new_amount - previous_amount)", name: "salary_adjustments_change_amount_valid"
+    t.check_constraint "new_amount >= 0::numeric", name: "salary_adjustments_new_amount_non_negative"
+    t.check_constraint "previous_amount >= 0::numeric", name: "salary_adjustments_previous_amount_non_negative"
+    t.check_constraint "reason::text = ANY (ARRAY['annual_increment'::character varying, 'promotion'::character varying, 'correction'::character varying, 'market_adjustment'::character varying, 'demotion'::character varying, 'other'::character varying]::text[])", name: "salary_adjustments_reason_valid"
+  end
+
   add_foreign_key "employee_addresses", "employees", on_delete: :cascade
   add_foreign_key "employee_salaries", "employees", on_delete: :cascade
   add_foreign_key "employees", "departments", on_delete: :restrict
   add_foreign_key "employees", "job_titles", on_delete: :restrict
+  add_foreign_key "salary_adjustments", "employee_salaries", on_delete: :cascade
+  add_foreign_key "salary_adjustments", "employees", on_delete: :cascade
 end
