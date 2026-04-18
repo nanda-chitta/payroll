@@ -1,7 +1,9 @@
 class EmployeeSalary < ApplicationRecord
   belongs_to :employee
 
-  before_validation :normalize_fields
+  normalizes_attributes :currency, transform: :upcase
+  normalizes_attributes :pay_frequency
+  normalizes_attributes :reason, :notes, blank_to_nil: true
 
   validates :amount, presence: true, numericality: { greater_than_or_equal_to: 0 }
   validates :currency, presence: true, length: { is: 3 }
@@ -17,13 +19,6 @@ class EmployeeSalary < ApplicationRecord
   }
 
   private
-
-  def normalize_fields
-    self.currency = currency.to_s.strip.upcase
-    self.pay_frequency = pay_frequency.to_s.strip
-    self.reason = reason.to_s.strip.presence
-    self.notes = notes.to_s.strip.presence
-  end
 
   def effective_to_not_before_effective_from
     return if effective_to.blank? || effective_from.blank?

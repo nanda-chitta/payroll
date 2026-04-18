@@ -6,7 +6,10 @@ class Employee < ApplicationRecord
   has_many :employee_salaries, dependent: :destroy
   has_many :salary_adjustments, dependent: :destroy
 
-  before_validation :normalize_fields
+  normalizes_attributes :employee_code, transform: :upcase
+  normalizes_attributes :first_name, :last_name, :employment_type, :status
+  normalizes_attributes :middle_name, blank_to_nil: true
+  normalizes_attributes :email, transform: :downcase
 
   validates :employee_code, presence: true, uniqueness: { case_sensitive: false }, length: { maximum: 30 }
   validates :first_name, presence: true, length: { maximum: 100 }
@@ -46,16 +49,6 @@ class Employee < ApplicationRecord
   end
 
   private
-
-  def normalize_fields
-    self.employee_code = employee_code.to_s.strip.upcase
-    self.first_name = first_name.to_s.strip
-    self.middle_name = middle_name.to_s.strip.presence
-    self.last_name = last_name.to_s.strip
-    self.email = email.to_s.strip.downcase
-    self.employment_type = employment_type.to_s.strip
-    self.status = status.to_s.strip
-  end
 
   def termination_date_not_before_hire_date
     return if termination_date.blank? || hire_date.blank?

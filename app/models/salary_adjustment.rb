@@ -2,7 +2,8 @@ class SalaryAdjustment < ApplicationRecord
   belongs_to :employee
   belongs_to :employee_salary
 
-  before_validation :normalize_fields
+  normalizes_attributes :reason
+  normalizes_attributes :notes, blank_to_nil: true
   before_validation :calculate_change_fields
 
   validates :previous_amount, presence: true, numericality: { greater_than_or_equal_to: 0 }
@@ -15,11 +16,6 @@ class SalaryAdjustment < ApplicationRecord
   validate :employee_matches_salary
 
   private
-
-  def normalize_fields
-    self.reason = reason.to_s.strip
-    self.notes = notes.to_s.strip.presence
-  end
 
   def calculate_change_fields
     return if previous_amount.blank? || new_amount.blank?
