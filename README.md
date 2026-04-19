@@ -2,6 +2,15 @@
 
 Minimal salary management tool for an HR manager operating over a 10,000 employee organization.
 
+## Product Framing
+
+The primary user is an HR manager who needs two things quickly:
+
+- operational control over employee records
+- immediate salary visibility by country and role
+
+The app is intentionally optimized for that workflow instead of a landing page. The first screen goes straight to filters, salary metrics, employee records, and employee create/update actions.
+
 ## Assessment Checklist
 
 - Employee CRUD through the UI: add, view, update, and delete employees.
@@ -12,6 +21,102 @@ Minimal salary management tool for an HR manager operating over a 10,000 employe
 - Tests cover the core API, model, salary insight, and seed behavior.
 - Product, architecture, trade-off, AI usage, and demo notes are documented in [docs/assessment-notes.md](docs/assessment-notes.md).
 - Commit history is incremental and shows the implementation evolution.
+
+## Requirement Coverage
+
+### Product Requirements
+
+| Requirement | Status | Notes |
+| --- | --- | --- |
+| Add, view, update, and delete employees via UI | Implemented | React UI supports create, details view, edit, and delete actions |
+| Employee fields must include full name, job title, country, salary, plus meaningful additional data | Implemented | Includes employee code, email, department, address, employment type, status, hire date, salary currency, and pay frequency |
+| Minimum, maximum, average salary in a country | Implemented | Available in the salary metric cards |
+| Average salary for a given job title in a country | Implemented | Available in the salary insights panel |
+| Additional useful metrics for HR manager | Implemented | Country employee count, salary band distribution, and top roles by headcount |
+| Seed 10,000 employees from `first_names.txt` and `last_names.txt` | Implemented | `db/seeds.rb` uses deterministic batched inserts |
+| Fast, deterministic tests for core behavior | Implemented | Request specs, model specs, and seed data specs are included |
+| Deployed software | Not included | Deployment path is documented, but no live deployment URL is checked in |
+| Video demo | Not included | Suggested demo flow is documented in [docs/assessment-notes.md](docs/assessment-notes.md) |
+
+## ER Diagram
+
+```mermaid
+erDiagram
+    DEPARTMENTS ||--o{ EMPLOYEES : has
+    JOB_TITLES ||--o{ EMPLOYEES : has
+    EMPLOYEES ||--o{ EMPLOYEE_ADDRESSES : has
+    EMPLOYEES ||--o{ EMPLOYEE_SALARIES : has
+    EMPLOYEES ||--o{ SALARY_ADJUSTMENTS : has
+    EMPLOYEE_SALARIES ||--o{ SALARY_ADJUSTMENTS : referenced_by
+
+    DEPARTMENTS {
+        bigint id PK
+        string name
+        string code
+        text description
+    }
+
+    JOB_TITLES {
+        bigint id PK
+        string name
+        string code
+        text description
+    }
+
+    EMPLOYEES {
+        bigint id PK
+        string employee_code
+        string first_name
+        string middle_name
+        string last_name
+        string email
+        date date_of_birth
+        date hire_date
+        date termination_date
+        string employment_type
+        string status
+        bigint department_id FK
+        bigint job_title_id FK
+    }
+
+    EMPLOYEE_ADDRESSES {
+        bigint id PK
+        bigint employee_id FK
+        string address_type
+        string line1
+        string line2
+        string city
+        string state
+        string postal_code
+        string country
+        boolean primary_address
+    }
+
+    EMPLOYEE_SALARIES {
+        bigint id PK
+        bigint employee_id FK
+        decimal amount
+        string currency
+        string pay_frequency
+        date effective_from
+        date effective_to
+        string reason
+        text notes
+    }
+
+    SALARY_ADJUSTMENTS {
+        bigint id PK
+        bigint employee_id FK
+        bigint employee_salary_id FK
+        decimal previous_amount
+        decimal new_amount
+        decimal change_amount
+        decimal change_percentage
+        date effective_from
+        string reason
+        text notes
+    }
+```
 
 ## Stack
 
@@ -282,6 +387,23 @@ Frontend:
 - `payroll-web/src/hooks` contains API-backed hooks for employees, lookups, and salary insights.
 - `payroll-web/src/components/ui` contains reusable UI primitives, including action icon buttons.
 - `SalaryManagementPage` composes filters, metrics, insights, table, and employee form into the HR workflow.
+
+## Artifacts
+
+The repo includes supporting artifacts for assessment review:
+
+- [docs/assessment-notes.md](docs/assessment-notes.md): product framing, architecture, trade-offs, AI usage, deployment path, and demo outline
+- [README.md](README.md): setup instructions, Docker workflow, requirement coverage, and schema overview
+- incremental git history: implementation evolution across the solution
+
+## Remaining Gaps
+
+These items are the main assessment asks not fully delivered as checked-in artifacts:
+
+- no live deployed URL
+- no checked-in video demo
+
+Everything else in the core build brief is represented in the codebase or documentation.
 
 ## Deployment Readiness
 
