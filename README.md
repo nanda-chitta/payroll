@@ -40,83 +40,7 @@ The app is intentionally optimized for that workflow instead of a landing page. 
 
 ## ER Diagram
 
-```mermaid
-erDiagram
-    DEPARTMENTS ||--o{ EMPLOYEES : has
-    JOB_TITLES ||--o{ EMPLOYEES : has
-    EMPLOYEES ||--o{ EMPLOYEE_ADDRESSES : has
-    EMPLOYEES ||--o{ EMPLOYEE_SALARIES : has
-    EMPLOYEES ||--o{ SALARY_ADJUSTMENTS : has
-    EMPLOYEE_SALARIES ||--o{ SALARY_ADJUSTMENTS : referenced_by
-
-    DEPARTMENTS {
-        bigint id PK
-        string name
-        string code
-        text description
-    }
-
-    JOB_TITLES {
-        bigint id PK
-        string name
-        string code
-        text description
-    }
-
-    EMPLOYEES {
-        bigint id PK
-        string employee_code
-        string first_name
-        string middle_name
-        string last_name
-        string email
-        date date_of_birth
-        date hire_date
-        date termination_date
-        string employment_type
-        string status
-        bigint department_id FK
-        bigint job_title_id FK
-    }
-
-    EMPLOYEE_ADDRESSES {
-        bigint id PK
-        bigint employee_id FK
-        string address_type
-        string line1
-        string line2
-        string city
-        string state
-        string postal_code
-        string country
-        boolean primary_address
-    }
-
-    EMPLOYEE_SALARIES {
-        bigint id PK
-        bigint employee_id FK
-        decimal amount
-        string currency
-        string pay_frequency
-        date effective_from
-        date effective_to
-        string reason
-        text notes
-    }
-
-    SALARY_ADJUSTMENTS {
-        bigint id PK
-        bigint employee_id FK
-        bigint employee_salary_id FK
-        decimal previous_amount
-        decimal new_amount
-        decimal change_amount
-        decimal change_percentage
-        date effective_from
-        string reason
-        text notes
-    }
-```
+See [docs/er-diagram.md](docs/er-diagram.md) for the dedicated model diagram.
 
 ## Stack
 
@@ -393,6 +317,7 @@ Frontend:
 The repo includes supporting artifacts for assessment review:
 
 - [docs/assessment-notes.md](docs/assessment-notes.md): product framing, architecture, trade-offs, AI usage, deployment path, and demo outline
+- [docs/er-diagram.md](docs/er-diagram.md): dedicated entity-relationship diagram for the payroll domain
 - [README.md](README.md): setup instructions, Docker workflow, requirement coverage, and schema overview
 - incremental git history: implementation evolution across the solution
 
