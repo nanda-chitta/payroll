@@ -126,11 +126,13 @@ export function SalaryManagementPage() {
             filters={filters}
             lookups={lookups}
             onFiltersChange={(nextFilters) => {
+              setPageError('')
               setFilters(nextFilters)
               setPaginationModel((currentModel) => ({ ...currentModel, page: 0 }))
             }}
             onQueryDraftChange={setQueryDraft}
             onSearch={() => {
+              setPageError('')
               setFilters((currentFilters) => ({ ...currentFilters, query: queryDraft }))
               setPaginationModel((currentModel) => ({ ...currentModel, page: 0 }))
             }}

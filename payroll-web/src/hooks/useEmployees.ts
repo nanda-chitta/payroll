@@ -38,6 +38,13 @@ export function useEmployees(filters: EmployeeFilters, pagination: EmployeePagin
       setEmployees(data.employees)
       setMeta(data.meta)
     } catch (requestError) {
+      if (isNotFound(requestError)) {
+        setEmployees([])
+        setMeta({ page: pagination.page + 1, perPage: pagination.pageSize, total: 0 })
+        setError('')
+        return
+      }
+
       setError(errorMessage(requestError))
     } finally {
       setIsLoading(false)
@@ -63,6 +70,15 @@ export function useEmployees(filters: EmployeeFilters, pagination: EmployeePagin
   }, [])
 
   return { employees, meta, isLoading, error, reload: loadEmployees, saveEmployee, deleteEmployee }
+}
+
+function isNotFound(error: unknown) {
+  if (typeof error !== 'object' || !error) return false
+
+  const requestError = error as { message?: unknown; status?: unknown }
+  const message = typeof requestError.message === 'string' ? requestError.message.toLowerCase() : ''
+
+  return requestError.status === 404 || message === 'not found' || message === 'record not found'
 }
 
 function formPayload(form: EmployeeFormValues) {

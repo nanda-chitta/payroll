@@ -129,7 +129,7 @@ export function EmployeeTable({
         <Box>
           <Typography variant="h2">Employees</Typography>
           <Typography color="text.secondary">
-            {isLoading ? 'Loading payroll data' : `${rowCount.toLocaleString()} records available`}
+            {tableSummary(isLoading, rowCount)}
           </Typography>
         </Box>
       </Box>
@@ -140,6 +140,9 @@ export function EmployeeTable({
           disableRowSelectionOnClick
           getRowHeight={() => 72}
           loading={isLoading}
+          localeText={{
+            noRowsLabel: isLoading ? 'Loading...' : 'No Employee available',
+          }}
           onPaginationModelChange={onPaginationModelChange}
           pageSizeOptions={[10, 25, 50, 100]}
           paginationMode="server"
@@ -160,4 +163,11 @@ export function EmployeeTable({
       </Box>
     </Paper>
   )
+}
+
+function tableSummary(isLoading: boolean, rowCount: number) {
+  if (isLoading) return 'Loading...'
+  if (rowCount === 0) return 'No Employee available'
+
+  return `${rowCount.toLocaleString()} records available`
 }
