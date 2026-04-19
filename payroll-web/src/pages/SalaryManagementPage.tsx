@@ -10,6 +10,7 @@ import { Button } from '../components/ui'
 import { useEmployees } from '../hooks/useEmployees'
 import { useLookups } from '../hooks/useLookups'
 import { useSalaryInsights } from '../hooks/useSalaryInsights'
+import { useSnackbar } from '../hooks'
 import { money } from '../utils/formatters'
 import type { Employee, EmployeeFilters, EmployeeFormValues } from '../types/payroll'
 
@@ -18,6 +19,7 @@ const EmployeeTable = lazy(() =>
 )
 
 export function SalaryManagementPage() {
+  const snackbar = useSnackbar()
   const { lookups, error: lookupsError, reload: reloadLookups } = useLookups()
   const [filters, setFilters] = useState<EmployeeFilters>({ activeOnly: false, country: '', jobTitleId: '', query: '' })
   const [queryDraft, setQueryDraft] = useState('')
@@ -55,6 +57,7 @@ export function SalaryManagementPage() {
   function handleCreate() {
     setEditingEmployee(null)
     setIsFormOpen(true)
+    snackbar.info('Ready to add a new employee')
   }
 
   function handleView(employee: Employee) {
@@ -64,9 +67,11 @@ export function SalaryManagementPage() {
   function handleEdit(employee: Employee) {
     setEditingEmployee(employee)
     setIsFormOpen(true)
+    snackbar.info(`Editing ${employee.fullName}`)
   }
 
   async function handleSave(values: EmployeeFormValues) {
+    const isUpdate = Boolean(values.id)
     setIsSaving(true)
     setPageError('')
 
@@ -75,8 +80,11 @@ export function SalaryManagementPage() {
       setIsFormOpen(false)
       setEditingEmployee(null)
       await Promise.all([reloadEmployees(), reloadInsights(), reloadLookups()])
+      snackbar.success(isUpdate ? 'Employee updated successfully' : 'Employee created successfully')
     } catch (error) {
-      setPageError(error instanceof Error ? error.message : 'Unable to save employee')
+      const message = error instanceof Error ? error.message : 'Unable to save employee'
+      setPageError(message)
+      snackbar.error(message)
     } finally {
       setIsSaving(false)
     }
@@ -90,8 +98,11 @@ export function SalaryManagementPage() {
     try {
       await deleteEmployee(employee)
       await Promise.all([reloadEmployees(), reloadInsights(), reloadLookups()])
+      snackbar.success('Employee deleted successfully')
     } catch (error) {
-      setPageError(error instanceof Error ? error.message : 'Unable to delete employee')
+      const message = error instanceof Error ? error.message : 'Unable to delete employee'
+      setPageError(message)
+      snackbar.error(message)
     }
   }
 

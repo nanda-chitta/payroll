@@ -24,3 +24,19 @@ export function DeleteIcon(props: SvgIconProps) {
     </SvgIcon>
   )
 }
+
+export function BellIcon(props: SvgIconProps) {
+  return (
+    <SvgIcon {...props} viewBox="0 0 24 24">
+      <path d="M12 22a2.5 2.5 0 0 0 2.4-1.8H9.6A2.5 2.5 0 0 0 12 22Zm7-6.4-1.4-1.9V10a5.6 5.6 0 0 0-4.4-5.5V3a1.2 1.2 0 0 0-2.4 0v1.5A5.6 5.6 0 0 0 6.4 10v3.7L5 15.6V18h14v-2.4Z" />
+    </SvgIcon>
+  )
+}
+
+export function UserIcon(props: SvgIconProps) {
+  return (
+    <SvgIcon {...props} viewBox="0 0 24 24">
+      <path d="M12 12a4.2 4.2 0 1 0 0-8.4 4.2 4.2 0 0 0 0 8.4Zm0 2c-4.4 0-8 2.2-8 5v1.4h16V19c0-2.8-3.6-5-8-5Z" />
+    </SvgIcon>
+  )
+}

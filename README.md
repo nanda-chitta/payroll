@@ -40,7 +40,7 @@ Required:
 
 - Ruby `3.4.1`
 - PostgreSQL
-- Node `>=20.19` or `>=22.12`
+- Node `>=20.19` or `>=22.22`
 - npm
 
 Optional for faster production-like behavior:
