@@ -60,25 +60,25 @@ export function EmployeeFormDialog({
             gridTemplateColumns: { md: 'repeat(3, minmax(0, 1fr))', xs: '1fr' },
           }}
         >
-          <FormText control={control} label="Employee code" name="employee_code" />
-          <FormText control={control} label="First name" name="first_name" />
-          <FormText control={control} label="Middle name" name="middle_name" />
-          <FormText control={control} label="Last name" name="last_name" />
+          <FormText control={control} label="Employee code" name="employeeCode" />
+          <FormText control={control} label="First name" name="firstName" />
+          <FormText control={control} label="Middle name" name="middleName" />
+          <FormText control={control} label="Last name" name="lastName" />
           <FormText control={control} label="Email" name="email" type="email" />
-          <FormDate control={control} label="Hire date" name="hire_date" />
-          <FormSelect control={control} label="Department" name="department_id" options={lookups.departments} />
-          <FormSelect control={control} label="Job title" name="job_title_id" options={lookups.job_titles} />
-          <FormRadioGroup control={control} label="Employment type" name="employment_type" options={lookups.employment_types} />
+          <FormDate control={control} label="Hire date" name="hireDate" />
+          <FormSelect control={control} label="Department" name="departmentId" options={lookups.departments} />
+          <FormSelect control={control} label="Job title" name="jobTitleId" options={lookups.jobTitles} />
+          <FormRadioGroup control={control} label="Employment type" name="employmentType" options={lookups.employmentTypes} />
           <FormRadioGroup control={control} label="Status" name="status" options={lookups.statuses} />
           <FormText control={control} label="Country" name="country" />
           <FormText control={control} label="City" name="city" />
           <FormText control={control} label="Address line 1" name="line1" />
           <FormText control={control} label="Address line 2" name="line2" />
           <FormText control={control} label="State" name="state" />
-          <FormText control={control} label="Postal code" name="postal_code" />
-          <FormText control={control} label="Salary" name="salary_amount" type="number" />
+          <FormText control={control} label="Postal code" name="postalCode" />
+          <FormText control={control} label="Salary" name="salaryAmount" type="number" />
           <FormText control={control} label="Currency" name="currency" />
-          <FormRadioGroup control={control} label="Pay frequency" name="pay_frequency" options={lookups.pay_frequencies} />
+          <FormRadioGroup control={control} label="Pay frequency" name="payFrequency" options={lookups.payFrequencies} />
         </Box>
       </DialogContent>
       <DialogActions>
@@ -204,48 +204,48 @@ function FormRadioGroup({
 function defaultValues(employee: Employee | null, lookups: Lookups): EmployeeFormValues {
   if (!employee) {
     return {
-      employee_code: '',
-      first_name: '',
-      middle_name: '',
-      last_name: '',
+      employeeCode: '',
+      firstName: '',
+      middleName: '',
+      lastName: '',
       email: '',
-      hire_date: new Date().toISOString().slice(0, 10),
-      employment_type: lookups.employment_types[0] ?? 'full_time',
+      hireDate: new Date().toISOString().slice(0, 10),
+      employmentType: lookups.employmentTypes[0] ?? 'full_time',
       status: lookups.statuses[0] ?? 'active',
-      department_id: lookups.departments[0]?.id.toString() ?? '',
-      job_title_id: lookups.job_titles[0]?.id.toString() ?? '',
+      departmentId: lookups.departments[0]?.id.toString() ?? '',
+      jobTitleId: lookups.jobTitles[0]?.id.toString() ?? '',
       line1: '',
       line2: '',
       city: '',
       state: '',
-      postal_code: '',
+      postalCode: '',
       country: lookups.countries[0] ?? 'India',
-      salary_amount: '',
+      salaryAmount: '',
       currency: 'USD',
-      pay_frequency: lookups.pay_frequencies[0] ?? 'yearly',
+      payFrequency: lookups.payFrequencies[0] ?? 'yearly',
     }
   }
 
   return {
     id: employee.id,
-    employee_code: employee.employee_code,
-    first_name: employee.first_name,
-    middle_name: employee.middle_name ?? '',
-    last_name: employee.last_name,
+    employeeCode: employee.employeeCode,
+    firstName: employee.firstName,
+    middleName: employee.middleName ?? '',
+    lastName: employee.lastName,
     email: employee.email,
-    hire_date: employee.hire_date,
-    employment_type: employee.employment_type,
+    hireDate: employee.hireDate,
+    employmentType: employee.employmentType,
     status: employee.status,
-    department_id: employee.department?.id.toString() ?? '',
-    job_title_id: employee.job_title?.id.toString() ?? '',
+    departmentId: employee.department?.id.toString() ?? '',
+    jobTitleId: employee.jobTitle?.id.toString() ?? '',
     line1: employee.address?.line1 ?? '',
     line2: employee.address?.line2 ?? '',
     city: employee.address?.city ?? '',
     state: employee.address?.state ?? '',
-    postal_code: employee.address?.postal_code ?? '',
+    postalCode: employee.address?.postalCode ?? '',
     country: employee.country ?? '',
-    salary_amount: employee.salary?.amount ?? '',
+    salaryAmount: employee.salary?.amount ?? '',
     currency: employee.salary?.currency ?? 'USD',
-    pay_frequency: employee.salary?.pay_frequency ?? 'yearly',
+    payFrequency: employee.salary?.payFrequency ?? 'yearly',
   }
 }

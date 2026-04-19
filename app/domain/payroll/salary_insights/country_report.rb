@@ -9,14 +9,7 @@ module Payroll
         @country = country.presence
         @job_title_id = job_title_id.presence
 
-        Success(
-          country: @country,
-          selected_job_title_id: @job_title_id,
-          country_salary: aggregate(country_scope),
-          job_title_salary: aggregate(job_title_scope),
-          headcount_by_job_title: headcount_by_job_title,
-          salary_distribution: salary_distribution
-        )
+        Success(Rails.cache.fetch(cache_key, expires_in: 10.minutes) { report })
       rescue StandardError => e
         Failure(type: :internal_error, message: e.message)
       end
@@ -24,6 +17,21 @@ module Payroll
       private
 
       attr_reader :country, :job_title_id
+
+      def report
+        {
+          country: @country,
+          selected_job_title_id: @job_title_id,
+          country_salary: aggregate(country_scope),
+          job_title_salary: aggregate(job_title_scope),
+          headcount_by_job_title: headcount_by_job_title,
+          salary_distribution: salary_distribution
+        }
+      end
+
+      def cache_key
+        [ 'salary_insights', country.presence || 'all', job_title_id.presence || 'all' ].join(':')
+      end
 
       def base_scope
         Employee

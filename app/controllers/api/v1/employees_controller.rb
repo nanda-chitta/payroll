@@ -22,40 +22,33 @@ class Api::V1::EmployeesController < Api::V1::BaseController
   end
 
   def show
-    render json: { employee: serialize_employee(employee) }
+    render_result(@employee_service.employee_show(id: params[:id])) do |employee|
+      { employee: serialize_employee(employee) }
+    end
   end
 
   def create
-    render_result(employee_upsert.call(params: employee_params), success_status: :created) do |employee|
+    render_result(@employee_service.employee_upsert(params: employee_params), success_status: :created) do |employee|
       { employee: serialize_employee(employee) }
     end
   end
 
   def update
-    render_result(employee_upsert.call(employee:, params: employee_params)) do |updated_employee|
+    employee_result = @employee_service.employee_show(id: params[:id])
+    return render_domain_failure(employee_result.failure) if employee_result.failure?
+
+    render_result(@employee_service.employee_upsert(employee: employee_result.value!, params: employee_params)) do |updated_employee|
       { employee: serialize_employee(updated_employee) }
     end
   end
 
   def destroy
-    result = employee_destroy.call(employee:)
+    result = @employee_service.employee_destroy(id: params[:id])
 
     result.success? ? head(:no_content) : render_domain_failure(result.failure)
   end
 
   private
-
-  def employee_upsert
-    AppContainer['payroll.employees.upsert']
-  end
-
-  def employee_destroy
-    AppContainer['payroll.employees.destroy']
-  end
-
-  def employee
-    @employee ||= Employee.includes(:department, :job_title, :employee_addresses, :employee_salaries).find(params[:id])
-  end
 
   def employee_params
     params.require(:employee).permit(
@@ -94,70 +87,7 @@ class Api::V1::EmployeesController < Api::V1::BaseController
   end
 
   def serialize_employee(employee)
-    current_address = employee.current_address
-    current_salary = employee.current_salary
-
-    {
-      id: employee.id,
-      employee_code: employee.employee_code,
-      first_name: employee.first_name,
-      last_name: employee.last_name,
-      full_name: employee.full_name,
-      email: employee.email,
-      date_of_birth: employee.date_of_birth,
-      hire_date: employee.hire_date,
-      termination_date: employee.termination_date,
-      employment_type: employee.employment_type,
-      status: employee.status,
-      department: serialize_department(employee.department),
-      job_title: serialize_job_title(employee.job_title),
-      country: current_address&.country,
-      address: serialize_address(current_address),
-      salary: serialize_salary(current_salary),
-      created_at: employee.created_at,
-      updated_at: employee.updated_at
-    }
-  end
-
-  def serialize_department(department)
-    return nil if department.blank?
-
-    { id: department.id, name: department.name, code: department.code }
-  end
-
-  def serialize_job_title(job_title)
-    return nil if job_title.blank?
-
-    { id: job_title.id, name: job_title.name, code: job_title.code }
-  end
-
-  def serialize_address(address)
-    return nil if address.blank?
-
-    {
-      id: address.id,
-      address_type: address.address_type,
-      line1: address.line1,
-      line2: address.line2,
-      city: address.city,
-      state: address.state,
-      postal_code: address.postal_code,
-      country: address.country,
-      primary_address: address.primary_address
-    }
-  end
-
-  def serialize_salary(salary)
-    return nil if salary.blank?
-
-    {
-      id: salary.id,
-      amount: salary.amount.to_s,
-      currency: salary.currency,
-      pay_frequency: salary.pay_frequency,
-      effective_from: salary.effective_from,
-      effective_to: salary.effective_to
-    }
+    ::Api::V1::EmployeeSerializer.new(employee).serializable_hash
   end
 
   def load_employee_services

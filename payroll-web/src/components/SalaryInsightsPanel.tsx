@@ -9,7 +9,7 @@ type SalaryInsightsPanelProps = {
 }
 
 export function SalaryInsightsPanel({ country, selectedJobTitle, insights }: SalaryInsightsPanelProps) {
-  const total = insights?.country_salary.employee_count ?? 0
+  const total = insights?.countrySalary.employeeCount ?? 0
 
   return (
     <Box
@@ -26,22 +26,22 @@ export function SalaryInsightsPanel({ country, selectedJobTitle, insights }: Sal
             Average salary in {country || 'all countries'}
           </Typography>
           <Typography component="strong" sx={{ display: 'block', mt: 2 }} variant="h4">
-            {money(insights?.job_title_salary.average_salary)}
+            {money(insights?.jobTitleSalary.averageSalary)}
           </Typography>
         </CardContent>
       </Card>
       <InsightBars
-        rows={(insights?.salary_distribution ?? []).map((bucket) => ({
+        rows={(insights?.salaryDistribution ?? []).map((bucket) => ({
           label: bucket.label,
-          value: bucket.employee_count,
+          value: bucket.employeeCount,
         }))}
         title="Salary bands"
         total={total}
       />
       <InsightBars
-        rows={(insights?.headcount_by_job_title ?? []).map((jobTitle) => ({
+        rows={(insights?.headcountByJobTitle ?? []).map((jobTitle) => ({
           label: jobTitle.name,
-          value: jobTitle.employee_count,
+          value: jobTitle.employeeCount,
         }))}
         title="Top roles"
         total={total}

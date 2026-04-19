@@ -16,6 +16,32 @@ RSpec.describe 'Api::V1::Employees', type: :request do
       expect(body['employees'].first['salary']['amount']).to eq('90000.0')
       expect(body['meta']['total']).to eq(1)
     end
+
+    it 'applies text, country, job title, and status filters together' do
+      hr_manager = create(:job_title, name: 'HR Manager')
+      engineer = create(:job_title, name: 'Engineering Manager')
+      india_match = create(:employee, first_name: 'Aarav', last_name: 'Chen', job_title: hr_manager, status: 'active')
+      canada_match = create(:employee, first_name: 'Chen', last_name: 'Brown', job_title: hr_manager, status: 'active')
+      inactive_match = create(:employee, first_name: 'Chitra', last_name: 'Rao', job_title: hr_manager, status: 'inactive')
+      wrong_role = create(:employee, first_name: 'Chandan', last_name: 'Rao', job_title: engineer, status: 'active')
+      create(:employee_address, :primary, employee: india_match, country: 'India')
+      create(:employee_address, :primary, employee: canada_match, country: 'Canada')
+      create(:employee_address, :primary, employee: inactive_match, country: 'India')
+      create(:employee_address, :primary, employee: wrong_role, country: 'India')
+
+      get '/api/v1/employees', params: {
+        query: 'ch',
+        country: 'India',
+        job_title_id: hr_manager.id,
+        status: 'active'
+      }
+
+      expect(response).to have_http_status(:ok)
+      body = response.parsed_body
+      expect(body['meta']['total']).to eq(1)
+      expect(body['employees'].pluck('id')).to eq([ india_match.id ])
+      expect(body['employees'].pluck('country')).to eq([ 'India' ])
+    end
   end
 
   describe 'POST /api/v1/employees' do

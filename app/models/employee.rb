@@ -1,4 +1,6 @@
 class Employee < ApplicationRecord
+  include Elasticsearch::Model
+
   belongs_to :department
   belongs_to :job_title
 
@@ -31,6 +33,32 @@ class Employee < ApplicationRecord
   scope :inactive, -> { where(status: 'inactive') }
   scope :terminated, -> { where(status: 'terminated') }
   scope :ordered, -> { order(:first_name, :last_name) }
+
+  index_name [ Rails.env, model_name.collection ].join('_')
+
+  settings index: { number_of_shards: 1 } do
+    mappings dynamic: false do
+      indexes :employee_code, type: :text
+      indexes :first_name, type: :text
+      indexes :last_name, type: :text
+      indexes :email, type: :text
+      indexes :status, type: :keyword
+      indexes :job_title_id, type: :integer
+      indexes :country, type: :keyword
+    end
+  end
+
+  def as_indexed_json(_options = {})
+    {
+      employee_code: employee_code,
+      first_name: first_name,
+      last_name: last_name,
+      email: email,
+      status: status,
+      job_title_id: job_title_id,
+      country: current_address&.country
+    }
+  end
 
   def full_name
     [ first_name, middle_name, last_name ].compact_blank.join(' ')

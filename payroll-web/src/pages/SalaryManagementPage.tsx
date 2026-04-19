@@ -44,8 +44,8 @@ export function SalaryManagementPage() {
   } = useSalaryInsights(filters)
 
   const selectedJobTitle = useMemo(
-    () => lookups.job_titles.find((jobTitle) => jobTitle.id.toString() === filters.jobTitleId),
-    [filters.jobTitleId, lookups.job_titles],
+    () => lookups.jobTitles.find((jobTitle) => jobTitle.id.toString() === filters.jobTitleId),
+    [filters.jobTitleId, lookups.jobTitles],
   )
 
   const visibleError = pageError || lookupsError || employeesError || insightsError
@@ -77,7 +77,7 @@ export function SalaryManagementPage() {
   }
 
   async function handleDelete(employee: Employee) {
-    if (!window.confirm(`Delete ${employee.full_name}?`)) return
+    if (!window.confirm(`Delete ${employee.fullName}?`)) return
 
     setPageError('')
 
@@ -138,10 +138,10 @@ export function SalaryManagementPage() {
               gridTemplateColumns: { lg: 'repeat(4, minmax(0, 1fr))', sm: 'repeat(2, minmax(0, 1fr))', xs: '1fr' },
             }}
           >
-            <MetricCard isLoading={insightsLoading} title="Country employees" value={insights?.country_salary.employee_count ?? 0} />
-            <MetricCard isLoading={insightsLoading} title="Minimum salary" value={money(insights?.country_salary.minimum_salary)} />
-            <MetricCard isLoading={insightsLoading} title="Average salary" value={money(insights?.country_salary.average_salary)} />
-            <MetricCard isLoading={insightsLoading} title="Maximum salary" value={money(insights?.country_salary.maximum_salary)} />
+            <MetricCard isLoading={insightsLoading} title="Country employees" value={insights?.countrySalary.employeeCount ?? 0} />
+            <MetricCard isLoading={insightsLoading} title="Minimum salary" value={money(insights?.countrySalary.minimumSalary)} />
+            <MetricCard isLoading={insightsLoading} title="Average salary" value={money(insights?.countrySalary.averageSalary)} />
+            <MetricCard isLoading={insightsLoading} title="Maximum salary" value={money(insights?.countrySalary.maximumSalary)} />
           </Box>
 
           <SalaryInsightsPanel country={filters.country} insights={insights} selectedJobTitle={selectedJobTitle} />

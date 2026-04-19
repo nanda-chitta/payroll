@@ -1,7 +1,7 @@
 class Api::V1::EmployeeSerializer < Api::V1::BaseSerializer
-  attributes :employee_code, :first_name, :last_name, :full_name, :email,
+  attributes :id, :employee_code, :first_name, :middle_name, :last_name, :full_name, :email,
              :date_of_birth, :hire_date, :termination_date, :employment_type, :status,
-             :department, :job_title, :country, :address, :salary
+             :department, :job_title, :country, :address, :salary, :created_at, :updated_at
 
   def full_name
     object.full_name

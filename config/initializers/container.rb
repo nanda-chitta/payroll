@@ -8,9 +8,4 @@ class AppContainer < Dry::System::Container
   end
 end
 
-# AppContainer.register('payroll.employees.search') { Payroll::Employees::Search.new }
-# AppContainer.register('payroll.employees.upsert') { Payroll::Employees::Upsert.new }
-# AppContainer.register('payroll.employees.destroy') { Payroll::Employees::Destroy.new }
-# AppContainer.register('payroll.salary_insights.country_report') { Payroll::SalaryInsights::CountryReport.new }
-
 AppContainer.finalize! unless AppContainer.finalized?

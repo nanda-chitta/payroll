@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { apiGet, apiRequest } from './useApi'
+import { apiDelete, apiGet, apiPatch, apiPost } from '../api'
 import { errorMessage } from './useLookups'
 import type { Employee, EmployeeFilters, EmployeeFormValues, PaginationMeta } from '../types/payroll'
 
@@ -10,9 +10,8 @@ export type EmployeePagination = {
 
 const initialMeta: PaginationMeta = {
   page: 1,
-  limit: 25,
+  perPage: 25,
   total: 0,
-  total_pages: 0,
 }
 
 export function useEmployees(filters: EmployeeFilters, pagination: EmployeePagination) {
@@ -31,11 +30,11 @@ export function useEmployees(filters: EmployeeFilters, pagination: EmployeePagin
         page: (pagination.page + 1).toString(),
       })
       if (filters.country) params.set('country', filters.country)
-      if (filters.jobTitleId) params.set('job_title_id', filters.jobTitleId)
+      if (filters.jobTitleId) params.set('jobTitleId', filters.jobTitleId)
       if (filters.query.trim()) params.set('query', filters.query.trim())
       if (filters.activeOnly) params.set('status', 'active')
 
-      const data = await apiGet<{ employees: Employee[]; meta: PaginationMeta }>(`/api/v1/employees?${params}`)
+      const data = await apiGet<{ employees: Employee[]; meta: PaginationMeta }>(`/employees?${params}`)
       setEmployees(data.employees)
       setMeta(data.meta)
     } catch (requestError) {
@@ -50,17 +49,17 @@ export function useEmployees(filters: EmployeeFilters, pagination: EmployeePagin
   }, [loadEmployees])
 
   const saveEmployee = useCallback(async (form: EmployeeFormValues) => {
-    const path = form.id ? `/api/v1/employees/${form.id}` : '/api/v1/employees'
-    const method = form.id ? 'PATCH' : 'POST'
+    const payload = { employee: formPayload(form) }
 
-    await apiRequest(path, {
-      method,
-      body: JSON.stringify({ employee: formPayload(form) }),
-    })
+    if (form.id) {
+      await apiPatch(`/employees/${form.id}`, payload)
+    } else {
+      await apiPost('/employees', payload)
+    }
   }, [])
 
   const deleteEmployee = useCallback(async (employee: Employee) => {
-    await apiRequest(`/api/v1/employees/${employee.id}`, { method: 'DELETE' })
+    await apiDelete(`/employees/${employee.id}`)
   }, [])
 
   return { employees, meta, isLoading, error, reload: loadEmployees, saveEmployee, deleteEmployee }
@@ -69,8 +68,8 @@ export function useEmployees(filters: EmployeeFilters, pagination: EmployeePagin
 function formPayload(form: EmployeeFormValues) {
   return {
     ...form,
-    department_id: Number(form.department_id),
-    job_title_id: Number(form.job_title_id),
-    salary_amount: Number(form.salary_amount),
+    departmentId: Number(form.departmentId),
+    jobTitleId: Number(form.jobTitleId),
+    salaryAmount: Number(form.salaryAmount),
   }
 }

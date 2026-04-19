@@ -66,7 +66,7 @@ export function FilterToolbar({
           value={filters.jobTitleId}
         >
           <MenuItem value="">All job titles</MenuItem>
-          {lookups.job_titles.map((jobTitle) => (
+          {lookups.jobTitles.map((jobTitle) => (
             <MenuItem key={jobTitle.id} value={jobTitle.id}>
               {jobTitle.name}
             </MenuItem>

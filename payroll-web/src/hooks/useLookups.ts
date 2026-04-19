@@ -1,14 +1,14 @@
 import { useCallback, useEffect, useState } from 'react'
-import { apiGet } from './useApi'
+import { apiGet } from '../api'
 import type { Lookups } from '../types/payroll'
 
 export const emptyLookups: Lookups = {
   departments: [],
-  job_titles: [],
+  jobTitles: [],
   countries: [],
-  employment_types: [],
+  employmentTypes: [],
   statuses: [],
-  pay_frequencies: [],
+  payFrequencies: [],
 }
 
 export function useLookups() {
@@ -21,7 +21,7 @@ export function useLookups() {
     setError('')
 
     try {
-      setLookups(await apiGet<Lookups>('/api/v1/lookups'))
+      setLookups(await apiGet<Lookups>('/lookups'))
     } catch (requestError) {
       setError(errorMessage(requestError))
     } finally {
@@ -37,5 +37,7 @@ export function useLookups() {
 }
 
 export function errorMessage(error: unknown) {
-  return error instanceof Error ? error.message : 'Something went wrong'
+  return error instanceof Error || (typeof error === 'object' && error && 'message' in error)
+    ? String((error as { message: unknown }).message)
+    : 'Something went wrong'
 }

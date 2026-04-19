@@ -6,54 +6,54 @@ export type Lookup = {
 
 export type Employee = {
   id: number
-  employee_code: string
-  first_name: string
-  middle_name: string | null
-  last_name: string
-  full_name: string
+  employeeCode: string
+  firstName: string
+  middleName: string | null
+  lastName: string
+  fullName: string
   email: string
-  hire_date: string
-  employment_type: string
+  hireDate: string
+  employmentType: string
   status: string
   department: Lookup | null
-  job_title: Lookup | null
+  jobTitle: Lookup | null
   country: string | null
   address: {
     line1: string
     line2: string | null
     city: string
     state: string | null
-    postal_code: string
+    postalCode: string
     country: string
   } | null
   salary: {
     amount: string
     currency: string
-    pay_frequency: string
+    payFrequency: string
   } | null
 }
 
 export type Lookups = {
   departments: Lookup[]
-  job_titles: Lookup[]
+  jobTitles: Lookup[]
   countries: string[]
-  employment_types: string[]
+  employmentTypes: string[]
   statuses: string[]
-  pay_frequencies: string[]
+  payFrequencies: string[]
 }
 
 export type InsightSummary = {
-  employee_count: number
-  minimum_salary: string | null
-  maximum_salary: string | null
-  average_salary: string | null
+  employeeCount: number
+  minimumSalary: string | null
+  maximumSalary: string | null
+  averageSalary: string | null
 }
 
 export type SalaryInsights = {
-  country_salary: InsightSummary
-  job_title_salary: InsightSummary
-  headcount_by_job_title: Array<{ job_title_id: number; name: string; employee_count: number }>
-  salary_distribution: Array<{ label: string; employee_count: number }>
+  countrySalary: InsightSummary
+  jobTitleSalary: InsightSummary
+  headcountByJobTitle: Array<{ jobTitleId: number; name: string; employeeCount: number }>
+  salaryDistribution: Array<{ label: string; employeeCount: number }>
 }
 
 export type EmployeeFilters = {
@@ -65,30 +65,29 @@ export type EmployeeFilters = {
 
 export type PaginationMeta = {
   page: number
-  limit: number
+  perPage: number
   total: number
-  total_pages: number
 }
 
 export type EmployeeFormValues = {
   id?: number
-  employee_code: string
-  first_name: string
-  middle_name: string
-  last_name: string
+  employeeCode: string
+  firstName: string
+  middleName: string
+  lastName: string
   email: string
-  hire_date: string
-  employment_type: string
+  hireDate: string
+  employmentType: string
   status: string
-  department_id: string
-  job_title_id: string
+  departmentId: string
+  jobTitleId: string
   line1: string
   line2: string
   city: string
   state: string
-  postal_code: string
+  postalCode: string
   country: string
-  salary_amount: string
+  salaryAmount: string
   currency: string
-  pay_frequency: string
+  payFrequency: string
 }

@@ -1,6 +1,8 @@
+export { ActionIconButton } from './ActionIconButton'
 export { Button } from './Button'
 export { CheckBox } from './CheckBox'
 export { DataGrid } from './DataGrid'
 export { DatePicker } from './DatePicker'
+export { DeleteIcon, EditIcon } from './icons'
 export { RadioButtonGroup } from './RadioButtonGroup'
 export { TextBox } from './TextBox'

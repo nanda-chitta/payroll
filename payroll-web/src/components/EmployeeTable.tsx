@@ -1,7 +1,7 @@
 import { Box, Chip, Paper, Typography } from '@mui/material'
 import type { GridColDef, GridPaginationModel } from '@mui/x-data-grid'
 import { useMemo } from 'react'
-import { Button, DataGrid } from './ui'
+import { ActionIconButton, DataGrid, DeleteIcon, EditIcon } from './ui'
 import { money } from '../utils/formatters'
 import type { Employee } from '../types/payroll'
 
@@ -33,21 +33,21 @@ export function EmployeeTable({
         minWidth: 280,
         renderCell: ({ row }) => (
           <Box>
-            <Typography sx={{ fontWeight: 700 }}>{row.full_name}</Typography>
+            <Typography sx={{ fontWeight: 700 }}>{row.fullName}</Typography>
             <Typography color="text.secondary" variant="body2">
-              {row.employee_code} | {row.email}
+              {row.employeeCode} | {row.email}
             </Typography>
           </Box>
         ),
         sortable: false,
       },
       {
-        field: 'job_title',
+        field: 'jobTitle',
         flex: 1,
         headerName: 'Job title',
         minWidth: 190,
         sortable: false,
-        valueGetter: (_value, row) => row.job_title?.name ?? '',
+        valueGetter: (_value, row) => row.jobTitle?.name ?? '',
       },
       {
         field: 'country',
@@ -80,15 +80,23 @@ export function EmployeeTable({
         field: 'actions',
         headerAlign: 'right',
         headerName: 'Actions',
-        minWidth: 170,
+        minWidth: 120,
         renderCell: ({ row }) => (
-          <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end', width: '100%' }}>
-            <Button onClick={() => onEdit(row)} size="small">
-              Edit
-            </Button>
-            <Button color="error" onClick={() => onDelete(row)} size="small">
-              Delete
-            </Button>
+          <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'flex-end', width: '100%' }}>
+            <ActionIconButton
+              ariaLabel={`Edit ${row.fullName}`}
+              color="primary"
+              icon={<EditIcon fontSize="small" />}
+              label="Edit"
+              onClick={() => onEdit(row)}
+            />
+            <ActionIconButton
+              ariaLabel={`Delete ${row.fullName}`}
+              color="error"
+              icon={<DeleteIcon fontSize="small" />}
+              label="Delete"
+              onClick={() => onDelete(row)}
+            />
           </Box>
         ),
         sortable: false,
