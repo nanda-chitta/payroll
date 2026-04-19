@@ -42,6 +42,49 @@ RSpec.describe 'Api::V1::Employees', type: :request do
       expect(body['employees'].pluck('id')).to eq([ india_match.id ])
       expect(body['employees'].pluck('country')).to eq([ 'India' ])
     end
+
+    it 'normalizes service failures from index' do
+      service = instance_double(EmployeeManagement::AppServices::EmployeeService)
+      stub_const('AppContainer', double(:[] => service))
+      allow(service).to receive(:employee_search).and_return(Dry::Monads::Failure(:bad_request))
+
+      get '/api/v1/employees'
+
+      expect(response).to have_http_status(:bad_request)
+      expect(response.parsed_body['error']['code']).to eq('bad_request')
+    end
+
+    it 'paginates array results from the service' do
+      first_employee = create(:employee, first_name: 'Asha', employee_code: 'EMP-00001', email: 'asha@example.com')
+      second_employee = create(:employee, first_name: 'Bea', employee_code: 'EMP-00002', email: 'bea@example.com')
+      create(:employee_address, :primary, employee: first_employee, country: 'India')
+      create(:employee_address, :primary, employee: second_employee, country: 'India')
+      create(:employee_salary, employee: first_employee, amount: 100_000)
+      create(:employee_salary, employee: second_employee, amount: 120_000)
+
+      service = instance_double(EmployeeManagement::AppServices::EmployeeService)
+      stub_const('AppContainer', double(:[] => service))
+      allow(service).to receive(:employee_search).and_return(Dry::Monads::Success([first_employee, second_employee]))
+
+      get '/api/v1/employees', params: { page: 1, per_page: 1 }
+
+      expect(response).to have_http_status(:ok)
+      expect(response.parsed_body['employees'].length).to eq(1)
+      expect(response.parsed_body['employees'].first['id']).to eq(first_employee.id)
+    end
+  end
+
+  describe 'GET /api/v1/employees/:id' do
+    it 'returns a single employee payload' do
+      employee = create(:employee, first_name: 'Maya', last_name: 'Shah')
+      create(:employee_address, :primary, employee:, country: 'India')
+      create(:employee_salary, employee:, amount: 90_000)
+
+      get "/api/v1/employees/#{employee.id}"
+
+      expect(response).to have_http_status(:ok)
+      expect(response.parsed_body.fetch('employee').fetch('full_name')).to eq('Maya Shah')
+    end
   end
 
   describe 'POST /api/v1/employees' do
@@ -90,6 +133,12 @@ RSpec.describe 'Api::V1::Employees', type: :request do
       expect(employee.current_address.country).to eq('United States')
       expect(employee.current_salary.amount).to eq(95_000)
     end
+
+    it 'returns not found when updating a missing employee' do
+      patch '/api/v1/employees/999999', params: { employee: { first_name: 'Updated' } }, as: :json
+
+      expect(response).to have_http_status(:not_found)
+    end
   end
 
   describe 'DELETE /api/v1/employees/:id' do
@@ -100,6 +149,12 @@ RSpec.describe 'Api::V1::Employees', type: :request do
 
       expect(response).to have_http_status(:no_content)
       expect(Employee.exists?(employee.id)).to be(false)
+    end
+
+    it 'returns not found when deleting a missing employee' do
+      delete '/api/v1/employees/999999'
+
+      expect(response).to have_http_status(:not_found)
     end
   end
 

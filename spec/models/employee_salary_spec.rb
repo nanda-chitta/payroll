@@ -32,4 +32,15 @@ RSpec.describe EmployeeSalary, type: :model do
       expect(salary.notes).to eq('approved')
     end
   end
+
+  describe '.current' do
+    it 'returns only currently effective salaries' do
+      employee = create(:employee)
+      expired = create(:employee_salary, employee:, effective_from: 2.years.ago.to_date, effective_to: 1.year.ago.to_date)
+      current = create(:employee_salary, employee:, effective_from: 1.month.ago.to_date, effective_to: nil)
+
+      expect(described_class.current).to include(current)
+      expect(described_class.current).not_to include(expired)
+    end
+  end
 end

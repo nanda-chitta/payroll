@@ -60,4 +60,45 @@ RSpec.describe Employee, type: :model do
       expect(employee.current_salary).to eq(current_salary)
     end
   end
+
+  describe '#as_indexed_json' do
+    it 'returns the searchable employee payload' do
+      employee = create(:employee, employee_code: 'EMP-10', first_name: 'Maya', last_name: 'Shah', email: 'maya@example.com')
+      create(:employee_address, :primary, employee:, country: 'India')
+
+      expect(employee.as_indexed_json).to include(
+        employee_code: 'EMP-10',
+        first_name: 'Maya',
+        last_name: 'Shah',
+        email: 'maya@example.com',
+        status: employee.status,
+        job_title_id: employee.job_title_id,
+        country: 'India'
+      )
+    end
+
+    it 'returns nil country when there is no current address' do
+      employee = build(:employee)
+      allow(employee).to receive(:current_address).and_return(nil)
+
+      expect(employee.as_indexed_json[:country]).to be_nil
+    end
+  end
+
+  describe 'date of birth validation' do
+    it 'rejects unreasonable dates of birth' do
+      employee = build(:employee, date_of_birth: 150.years.ago.to_date)
+
+      expect(employee).not_to be_valid
+      expect(employee.errors[:date_of_birth]).to include('is not within a reasonable range')
+    end
+  end
+
+  describe 'termination date validation' do
+    it 'allows a termination date on or after the hire date' do
+      employee = build(:employee, hire_date: Date.current, termination_date: Date.current)
+
+      expect(employee).to be_valid
+    end
+  end
 end

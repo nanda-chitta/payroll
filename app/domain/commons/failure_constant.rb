@@ -7,12 +7,6 @@ class Commons::FailureConstant < RuntimeError
     super(message)
   end
 
-  class UpdateForbiddenError < Commons::FailureConstant
-    def initialize
-      super(key: :update_forbidden_error)
-    end
-  end
-
   class SaveError < Commons::FailureConstant
     def initialize
       super(key: :save_error)
