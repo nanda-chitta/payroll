@@ -2,6 +2,8 @@
 
 This diagram covers the core payroll domain models used by the application.
 
+PDF version: [docs/er-diagram.pdf](./er-diagram.pdf)
+
 ## Domain Summary
 
 - `Department` and `JobTitle` are reference tables
