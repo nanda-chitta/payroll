@@ -9,11 +9,17 @@ type ApiErrorPayload = {
     errors?: Record<string, string[]>
 }
 
-const API_BASE_URL =
-    import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:3000'
+function normalizeBaseUrl(baseUrl?: string) {
+    if (!baseUrl) return ''
+
+    return baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl
+}
+
+const API_BASE_URL = normalizeBaseUrl(import.meta.env.VITE_API_BASE_URL)
+const API_ROOT = API_BASE_URL ? `${API_BASE_URL}/api/v1` : '/api/v1'
 
 const api: AxiosInstance = axios.create({
-    baseURL: `${API_BASE_URL}/api/v1`,
+    baseURL: API_ROOT,
     headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
@@ -44,8 +50,10 @@ api.interceptors.response.use(
                     data?.errorMsg ||
                     errorText(data?.error) ||
                     (typeof data?.error === 'string' ? data.error : null) ||
+                    responseText(error.response.data) ||
+                    error.response.statusText ||
                     formatErrors(data?.errors) ||
-                    'Request failed',
+                    `Request failed (${error.response.status})`,
                 status: error.response.status,
                 errors: data?.errors ?? null,
             })
@@ -62,6 +70,16 @@ function errorText(error: ApiErrorPayload['error']) {
     if (!error || typeof error === 'string') return null
 
     return error.message ?? null
+}
+
+function responseText(data: unknown) {
+    if (typeof data !== 'string') return null
+
+    const text = data.trim()
+    if (!text) return null
+    if (text.startsWith('<!DOCTYPE html') || text.startsWith('<html')) return null
+
+    return text
 }
 
 export default api

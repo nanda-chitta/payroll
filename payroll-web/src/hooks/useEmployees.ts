@@ -1,5 +1,6 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { apiDelete, apiGet, apiPatch, apiPost } from '../api'
+import { STARTUP_RETRY_DELAY_MS, shouldRetryDuringStartup } from './startupRetry'
 import { errorMessage } from './useLookups'
 import type { Employee, EmployeeFilters, EmployeeFormValues, PaginationMeta } from '../types/payroll'
 
@@ -17,12 +18,26 @@ const initialMeta: PaginationMeta = {
 export function useEmployees(filters: EmployeeFilters, pagination: EmployeePagination) {
   const [employees, setEmployees] = useState<Employee[]>([])
   const [meta, setMeta] = useState<PaginationMeta>(initialMeta)
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
+  const startupStartedAt = useRef(Date.now())
+  const hasLoadedOnce = useRef(false)
+  const retryTimeout = useRef<number | null>(null)
+
+  const clearRetry = useCallback(() => {
+    if (retryTimeout.current) {
+      window.clearTimeout(retryTimeout.current)
+      retryTimeout.current = null
+    }
+  }, [])
 
   const loadEmployees = useCallback(async () => {
+    clearRetry()
     setIsLoading(true)
-    setError('')
+
+    if (hasLoadedOnce.current) setError('')
+
+    let keepLoading = false
 
     try {
       const params = new URLSearchParams({
@@ -37,23 +52,36 @@ export function useEmployees(filters: EmployeeFilters, pagination: EmployeePagin
       const data = await apiGet<{ employees: Employee[]; meta: PaginationMeta }>(`/employees?${params}`)
       setEmployees(data.employees)
       setMeta(data.meta)
+      hasLoadedOnce.current = true
+      startupStartedAt.current = Date.now()
+      setError('')
     } catch (requestError) {
       if (isNotFound(requestError)) {
         setEmployees([])
         setMeta({ page: pagination.page + 1, perPage: pagination.pageSize, total: 0 })
         setError('')
+        hasLoadedOnce.current = true
+        return
+      }
+
+      if (!hasLoadedOnce.current && shouldRetryDuringStartup(startupStartedAt.current, requestError)) {
+        keepLoading = true
+        retryTimeout.current = window.setTimeout(() => {
+          void loadEmployees()
+        }, STARTUP_RETRY_DELAY_MS)
         return
       }
 
       setError(errorMessage(requestError))
     } finally {
-      setIsLoading(false)
+      if (!keepLoading) setIsLoading(false)
     }
-  }, [filters.activeOnly, filters.country, filters.jobTitleId, filters.query, pagination.page, pagination.pageSize])
+  }, [clearRetry, filters.activeOnly, filters.country, filters.jobTitleId, filters.query, pagination.page, pagination.pageSize])
 
   useEffect(() => {
     loadEmployees()
-  }, [loadEmployees])
+    return clearRetry
+  }, [clearRetry, loadEmployees])
 
   const saveEmployee = useCallback(async (form: EmployeeFormValues) => {
     const payload = { employee: formPayload(form) }

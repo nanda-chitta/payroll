@@ -32,7 +32,64 @@ The app supports:
 - View salary-band distribution and top roles by headcount
 - Seed 10,000 employees from `db/seed_data/first_names.txt` and `db/seed_data/last_names.txt`
 
-## Step-by-Step Local Setup
+## Run With Docker
+
+### 1. Prerequisites
+
+Required:
+
+- Docker Desktop or Docker Engine with Docker Compose
+
+### 2. Start the full stack
+
+From the repo root:
+
+```sh
+docker compose up --build
+```
+
+This starts:
+
+- PostgreSQL on `localhost:5432`
+- Redis on `localhost:6379`
+- Rails API on `http://localhost:3000`
+- Vite frontend on `http://localhost:4000`
+
+The Rails container runs `db:prepare` on boot, so the database is created and migrated automatically.
+
+### 3. Seed demo data
+
+In a separate terminal:
+
+```sh
+docker compose exec web bin/rails db:seed
+```
+
+This loads the 10,000 employee dataset used by the UI.
+
+### 4. Open the app
+
+Open:
+
+```text
+http://localhost:4000
+```
+
+The frontend proxies API requests to the Rails container, so no extra frontend environment variable is required.
+
+### 5. Stop the stack
+
+```sh
+docker compose down
+```
+
+To also remove the Postgres and Redis volumes:
+
+```sh
+docker compose down -v
+```
+
+## Run Without Docker
 
 ### 1. Install prerequisites
 
@@ -50,13 +107,54 @@ Optional for faster production-like behavior:
 
 The app still works without Elasticsearch because employee search falls back to SQL.
 
-### 2. Install backend dependencies
+### 2. Bootstrap the app with `bin/setup`
+
+From the repo root:
+
+```sh
+bin/setup
+```
+
+`bin/setup` will:
+
+- install Ruby gems
+- install frontend npm packages
+- copy `config/database.yml.sample` to `config/database.yml` when needed
+- copy `config/application.yml.sample` to `config/application.yml` when needed
+- run `bin/rails db:prepare`
+- clear logs and temp files
+- start `bin/dev`
+
+If you only want the dependencies and database setup without starting the servers:
+
+```sh
+bin/setup --skip-server
+```
+
+If you want to reset the database during setup:
+
+```sh
+bin/setup --reset
+```
+
+### 3. Open the app
+
+When `bin/dev` is running, use:
+
+```text
+http://localhost:4000
+```
+
+`bin/dev` starts Redis, Rails, and the frontend. The frontend now waits for Redis and Rails before opening the browser.
+
+## Manual Local Setup
+### 1. Install backend dependencies
 
 ```sh
 bundle install
 ```
 
-### 3. Configure environment
+### 2. Configure environment
 
 The repo includes local config files for development. If starting fresh, copy the samples and update values as needed:
 
@@ -72,7 +170,7 @@ REDIS_URL=redis://localhost:6379/1
 ELASTICSEARCH_URL=http://localhost:9200
 ```
 
-### 4. Create, migrate, and seed the database
+### 3. Create, migrate, and seed the database
 
 Backend:
 
@@ -88,7 +186,7 @@ The seed command creates:
 - 10,000 primary addresses
 - 10,000 current salary records
 
-### 5. Start the backend API
+### 4. Start the backend API
 
 ```sh
 bin/rails server
@@ -96,7 +194,7 @@ bin/rails server
 
 The API runs at `http://localhost:3000`.
 
-### 6. Install frontend dependencies
+### 5. Install frontend dependencies
 
 ```sh
 cd payroll-web
@@ -110,13 +208,13 @@ If `nvm use` selects an older Node version, use a compatible Node manually. Duri
 PATH="$HOME/.nvm/versions/node/v22.21.0/bin:$PATH" npm run build
 ```
 
-### 7. Start the frontend
+### 6. Start the frontend
 
 ```sh
-VITE_API_BASE_URL=http://localhost:3000 npm run dev
+npm run dev -- --host --port 4000
 ```
 
-Open the Vite URL, usually `http://localhost:5173`.
+Open `http://localhost:4000`.
 
 ## Step-by-Step Product Demo
 

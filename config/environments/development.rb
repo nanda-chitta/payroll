@@ -1,4 +1,5 @@
 require "active_support/core_ext/integer/time"
+require "uri"
 
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
@@ -14,6 +15,20 @@ Rails.application.configure do
 
   # Enable server timing.
   config.server_timing = true
+
+  allowed_hosts = ENV.fetch("DEV_DOMAIN", "")
+                     .split(",")
+                     .filter_map do |entry|
+                       value = entry.strip
+                       next if value.blank?
+
+                       URI.parse(value).host || value
+                     rescue URI::InvalidURIError
+                       value
+                     end
+
+  config.hosts += allowed_hosts
+  config.hosts << "web"
 
   # Enable caching in development.
   config.action_controller.perform_caching = true

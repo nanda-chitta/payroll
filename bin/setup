@@ -16,7 +16,7 @@ FileUtils.chdir APP_ROOT do
   puts "== Rails + React Development Setup =="
 
   puts "== Checking for required commands =="
-  puts "== Installing dependencies for the Dispute =="
+  puts "== Installing backend dependencies =="
   system("bundle check") || system!("bundle install")
 
   puts "\n== Checking Node & npm =="
@@ -35,6 +35,9 @@ FileUtils.chdir APP_ROOT do
   puts "\n== Copying sample files =="
   unless File.exist?("config/database.yml")
     FileUtils.cp "config/database.yml.sample", "config/database.yml"
+  end
+  unless File.exist?("config/application.yml")
+    FileUtils.cp "config/application.yml.sample", "config/application.yml"
   end
 
   puts "\n== Preparing database =="
