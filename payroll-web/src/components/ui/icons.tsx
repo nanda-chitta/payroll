@@ -9,6 +9,14 @@ export function EditIcon(props: SvgIconProps) {
   )
 }
 
+export function ViewIcon(props: SvgIconProps) {
+  return (
+    <SvgIcon {...props} viewBox="0 0 24 24">
+      <path d="M12 5c5 0 8.5 4.5 9.8 6.5.3.4.3.7 0 1.1C20.5 14.5 17 19 12 19s-8.5-4.5-9.8-6.5a1 1 0 0 1 0-1.1C3.5 9.5 7 5 12 5Zm0 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm0-2.2a1.8 1.8 0 1 1 0-3.6 1.8 1.8 0 0 1 0 3.6Z" />
+    </SvgIcon>
+  )
+}
+
 export function DeleteIcon(props: SvgIconProps) {
   return (
     <SvgIcon {...props} viewBox="0 0 24 24">

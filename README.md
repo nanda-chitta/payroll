@@ -126,10 +126,11 @@ Open the Vite URL, usually `http://localhost:5173`.
 4. Select a job title, for example `HR Manager`.
 5. Enter a search term and click `Search`.
 6. Confirm the table, country salary metrics, selected-role average, salary bands, and top roles all update.
-7. Click `Add employee`, complete the form, and save.
-8. Hover the row action icons to see `Edit` and `Delete` tooltips.
-9. Click the edit icon, change salary or country, and save.
-10. Click the delete icon and confirm the employee is removed.
+7. Hover the row action icons to see `View`, `Edit`, and `Delete` tooltips.
+8. Click the view icon and confirm the read-only employee details dialog opens.
+9. Click `Add employee`, complete the form, and save.
+10. Click the edit icon, change salary or country, and save.
+11. Click the delete icon and confirm the employee is removed.
 
 ## Step-by-Step Verification
 

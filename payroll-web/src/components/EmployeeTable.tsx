@@ -1,7 +1,7 @@
 import { Box, Chip, Paper, Typography } from '@mui/material'
 import type { GridColDef, GridPaginationModel } from '@mui/x-data-grid'
 import { useMemo } from 'react'
-import { ActionIconButton, DataGrid, DeleteIcon, EditIcon } from './ui'
+import { ActionIconButton, DataGrid, DeleteIcon, EditIcon, ViewIcon } from './ui'
 import { money } from '../utils/formatters'
 import type { Employee } from '../types/payroll'
 
@@ -10,6 +10,7 @@ type EmployeeTableProps = {
   isLoading: boolean
   paginationModel: GridPaginationModel
   rowCount: number
+  onView: (employee: Employee) => void
   onEdit: (employee: Employee) => void
   onDelete: (employee: Employee) => void
   onPaginationModelChange: (model: GridPaginationModel) => void
@@ -20,6 +21,7 @@ export function EmployeeTable({
   isLoading,
   paginationModel,
   rowCount,
+  onView,
   onEdit,
   onDelete,
   onPaginationModelChange,
@@ -80,9 +82,16 @@ export function EmployeeTable({
         field: 'actions',
         headerAlign: 'right',
         headerName: 'Actions',
-        minWidth: 120,
+        minWidth: 150,
         renderCell: ({ row }) => (
           <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'flex-end', width: '100%' }}>
+            <ActionIconButton
+              ariaLabel={`View ${row.fullName}`}
+              color="primary"
+              icon={<ViewIcon fontSize="small" />}
+              label="View"
+              onClick={() => onView(row)}
+            />
             <ActionIconButton
               ariaLabel={`Edit ${row.fullName}`}
               color="primary"
@@ -102,7 +111,7 @@ export function EmployeeTable({
         sortable: false,
       },
     ],
-    [onDelete, onEdit],
+    [onDelete, onEdit, onView],
   )
 
   return (
