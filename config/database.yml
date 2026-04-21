@@ -20,6 +20,15 @@ test:
   port: <%= ENV['POSTGRES_PORT'] || 5432 %>
 
 # PRODUCTION — Docker / EC2 / Jenkins SAFE
-production:
+production: &production
   <<: *default
   url: <%= ENV['DATABASE_URL'] || ENV['INTERNAL_DB_URL'] || ENV['EXTERNAL_DB_URL'] || ENV['PROD_DATABASE_URL'] %>
+
+cache:
+  <<: *production
+
+queue:
+  <<: *production
+
+cable:
+  <<: *production
