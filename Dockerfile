@@ -53,6 +53,16 @@ COPY . .
 ENTRYPOINT ["/rails/bin/docker-dev-entrypoint"]
 CMD ["./bin/rails", "server", "-b", "0.0.0.0", "-p", "3000"]
 
+FROM docker.io/library/node:22-bookworm-slim AS frontend-build
+
+WORKDIR /frontend
+
+COPY payroll-web/package.json payroll-web/package-lock.json ./
+RUN npm ci
+
+COPY payroll-web ./
+RUN npm run build
+
 # Throw-away build stage to reduce size of final image
 FROM base AS build
 
@@ -72,6 +82,9 @@ RUN bundle install && \
 
 # Copy application code
 COPY . .
+
+# Copy the built frontend into Rails public/ so the same Render web service can serve the SPA.
+COPY --from=frontend-build /frontend/dist /rails/public
 
 # Precompile bootsnap code for faster boot times.
 # -j 1 disable parallel compilation to avoid a QEMU bug: https://github.com/rails/bootsnap/issues/495

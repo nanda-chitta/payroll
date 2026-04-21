@@ -27,21 +27,6 @@ services:
           name: payroll-elasticsearch
           property: hostport
 
-  - name: payroll-web
-    type: web
-    runtime: static
-    plan: free
-    region: oregon
-    buildCommand: cd payroll-web && npm ci && npm run build
-    staticPublishPath: payroll-web/dist
-    routes:
-      - type: rewrite
-        source: /*
-        destination: /index.html
-    envVars:
-      - key: VITE_API_BASE_URL
-        value: https://payroll-vgfr.onrender.com
-
   - name: payroll-redis
     type: keyvalue
     plan: starter
