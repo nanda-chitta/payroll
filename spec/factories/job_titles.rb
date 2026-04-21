@@ -1,7 +1,7 @@
 FactoryBot.define do
   factory :job_title do
-    sequence(:name) { |n| "Job Title #{n}" }
-    sequence(:code) { |n| "JT#{n}" }
-    description { 'Job title description' }
+    sequence(:name) { |n| "#{Faker::Job.position} #{n}" }
+    sequence(:code) { |n| "JOB#{n}" }
+    description { Faker::Lorem.sentence(word_count: 5) }
   end
 end
