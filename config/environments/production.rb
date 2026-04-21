@@ -1,4 +1,5 @@
 require "active_support/core_ext/integer/time"
+require "digest"
 
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
@@ -28,6 +29,15 @@ Rails.application.configure do
   config.force_ssl = true
 
   config.require_master_key = false
+  config.secret_key_base = ENV["SECRET_KEY_BASE"].presence ||
+    ENV["RAILS_MASTER_KEY"].presence ||
+    Digest::SHA256.hexdigest(
+      [
+        ENV["DATABASE_URL"],
+        ENV["RENDER_EXTERNAL_HOSTNAME"],
+        "payroll-production-secret"
+      ].compact.join(":")
+    )
 
   # Skip http-to-https redirect for the default health check endpoint.
   # config.ssl_options = { redirect: { exclude: ->(request) { request.path == "/up" } } }
