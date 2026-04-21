@@ -3,6 +3,8 @@ hosts = %w[DEV_DOMAIN PROD_DOMAIN FRONTEND_URL]
   .map(&:strip)
   .reject(&:blank?)
 
+hosts << /\Ahttps:\/\/.*\.onrender\.com\z/
+
 if hosts.any?
   Rails.application.config.middleware.insert_before 0, Rack::Cors do
     allow do
