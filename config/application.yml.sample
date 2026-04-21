@@ -12,4 +12,12 @@ DB_MAX_THREADS: '5'
 DB_HOST: '0.0.0.0'
 DB_USERNAME: 'postgres'
 DB_PASSWORD: 'secret'
-PROD_DB_URL: postgresql://postgres:postgres@localhost:5432/payroll_prod
+PROD_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/payroll_prod
+
+# production setup for render
+INTERNAL_DB_URL: postgresql://payroll_db_w67b_user:I4KhYXhGsvxuEuzZDm123sgAj8xYiM4G@dpg-d7jle3nlk1mc73aad3a0-a/payroll_db_w67b
+EXTERNAL_DB_URL: postgresql://payroll_db_w67b_user:I4KhYXhGsvxuEuzZDm123sgAj8xYiM4G@dpg-d7jle3nlk1mc73aad3a0-a.oregon-postgres.render.com/payroll_db_w67b
+RAILS_ENV: production
+DATABASE_URL: postgresql://payroll_db_w67b_user:I4KhYXhGsvxuEuzZDm123sgAj8xYiM4G@dpg-d7jle3nlk1mc73aad3a0-a.oregon-postgres.render.com/payroll_db_w67b
+RAILS_SERVE_STATIC_FILES: true
+RAILS_LOG_TO_STDOUT: true
