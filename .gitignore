@@ -34,7 +34,7 @@
 
 # Ignore application configuration
 /config/application.yml
-/config/database.yml
+# Keep the shared database config in git for deployment targets like Render.
 
 .github
 .idea
