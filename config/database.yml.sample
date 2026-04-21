@@ -21,4 +21,4 @@ test:
 
 # PRODUCTION — Docker / EC2 / Jenkins SAFE
 production:
-  url: <%= ENV['DATABASE_URL'] %>
+  url: <%= ENV['PROD_DB_URL'] %>
