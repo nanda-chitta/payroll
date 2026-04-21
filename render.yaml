@@ -1,0 +1,42 @@
+services:
+  - name: payroll
+    type: web
+    runtime: docker
+    plan: starter
+    region: oregon
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: RAILS_ENV
+        value: production
+      - key: RAILS_LOG_TO_STDOUT
+        value: "true"
+      - key: RAILS_SERVE_STATIC_FILES
+        value: "true"
+      - key: SECRET_KEY_BASE
+        generateValue: true
+      - key: DATABASE_URL
+        sync: false
+      - key: REDIS_URL
+        fromService:
+          type: keyvalue
+          name: payroll-redis
+          property: connectionString
+      - key: ELASTICSEARCH_HOSTPORT
+        fromService:
+          type: pserv
+          name: payroll-elasticsearch
+          property: hostport
+
+  - name: payroll-redis
+    type: keyvalue
+    plan: starter
+    region: oregon
+    ipAllowList: []
+    maxmemoryPolicy: allkeys-lru
+
+  - name: payroll-elasticsearch
+    type: pserv
+    runtime: docker
+    plan: starter
+    region: oregon
+    dockerfilePath: ./Dockerfile.elasticsearch

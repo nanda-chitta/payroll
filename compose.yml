@@ -27,6 +27,22 @@ services:
     volumes:
       - redis_data:/data
 
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.17.0
+    environment:
+      discovery.type: single-node
+      xpack.security.enabled: "false"
+      ES_JAVA_OPTS: -Xms512m -Xmx512m
+    healthcheck:
+      test: ["CMD-SHELL", "curl --fail --silent http://127.0.0.1:9200 >/dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+    ports:
+      - "9200:9200"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+
   web:
     build:
       context: .
@@ -77,5 +93,6 @@ services:
 volumes:
   postgres_data:
   redis_data:
+  elasticsearch_data:
   bundle_cache:
   frontend_node_modules:

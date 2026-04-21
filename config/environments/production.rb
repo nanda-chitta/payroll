@@ -2,98 +2,81 @@ require "active_support/core_ext/integer/time"
 require "digest"
 
 Rails.application.configure do
-  # Settings specified here will take precedence over those in config/application.rb.
-
   # Code is not reloaded between requests.
   config.enable_reloading = false
 
-  # Eager load code on boot for better performance and memory savings (ignored by Rake tasks).
+  # Eager load code on boot for better performance and memory savings.
   config.eager_load = true
 
   # Full error reports are disabled.
   config.consider_all_requests_local = false
 
-  # Cache assets for far-future expiry since they are all digest stamped.
-  config.public_file_server.headers = { "cache-control" => "public, max-age=#{1.year.to_i}" }
+  # Cache static files for far-future expiry since they are digest stamped.
+  config.public_file_server.headers = {
+    "cache-control" => "public, max-age=#{1.year.to_i}"
+  }
 
-  # Enable serving of images, stylesheets, and JavaScripts from an asset server.
-  # config.asset_host = "http://assets.example.com"
-
-  # Store uploaded files on the local file system (see config/storage.yml for options).
+  # Store uploaded files on the local file system.
   config.active_storage.service = :local
 
-  # Assume all access to the app is happening through a SSL-terminating reverse proxy.
-  # config.assume_ssl = true
-
-  # Force all access to the app over SSL, use Strict-Transport-Security, and use secure cookies.
+  # Force all access to the app over SSL.
   config.force_ssl = true
 
+  # Do not require credentials/master.key for this deployment style.
   config.require_master_key = false
+
+  # Stable secret key base for production.
   config.secret_key_base = ENV["SECRET_KEY_BASE"].presence ||
-    ENV["RAILS_MASTER_KEY"].presence ||
-    Digest::SHA256.hexdigest(
-      [
-        ENV["DATABASE_URL"],
-        ENV["RENDER_EXTERNAL_HOSTNAME"],
-        "payroll-production-secret"
-      ].compact.join(":")
-    )
+                           Digest::SHA256.hexdigest(
+                             [
+                               ENV["DATABASE_URL"],
+                               ENV["REDIS_URL"],
+                               ENV["RENDER_EXTERNAL_HOSTNAME"],
+                               "payroll-production-secret"
+                             ].compact.join(":")
+                           )
 
-  # Skip http-to-https redirect for the default health check endpoint.
-  # config.ssl_options = { redirect: { exclude: ->(request) { request.path == "/up" } } }
-
-  # Log to STDOUT with the current request id as a default log tag.
-  config.log_tags = [ :request_id ]
-  config.logger   = ActiveSupport::TaggedLogging.logger(STDOUT)
-
-  # Change to "debug" to log everything (including potentially personally-identifiable information!).
+  # Log to STDOUT
+  config.log_tags = [:request_id]
+  config.logger = ActiveSupport::TaggedLogging.logger(STDOUT)
   config.log_level = ENV.fetch("RAILS_LOG_LEVEL", "info")
 
-  # Prevent health checks from clogging up the logs.
+  # Prevent health checks from cluttering logs.
   config.silence_healthcheck_path = "/up"
 
-  # Don't log any deprecations.
+  # Don't log deprecations.
   config.active_support.report_deprecations = false
 
-  # Replace the default in-process memory cache store with a durable alternative.
-  config.cache_store = :solid_cache_store
+  # Prefer Render Key Value / Redis when configured, otherwise fall back to Solid Cache tables.
+  if ENV["REDIS_URL"].present?
+    config.cache_store = :redis_cache_store, {
+      url: ENV.fetch("REDIS_URL"),
+      namespace: "payroll:cache",
+      expires_in: 1.hour
+    }
+  else
+    config.cache_store = :solid_cache_store
+  end
 
-  # Replace the default in-process and non-durable queuing backend for Active Job.
-  config.active_job.queue_adapter = :solid_queue
-  config.solid_queue.connects_to = { database: { writing: :queue } }
+  # Prefer Redis-backed Sidekiq when available, otherwise use Solid Queue.
+  if ENV["REDIS_URL"].present?
+    config.active_job.queue_adapter = :sidekiq
+  else
+    config.active_job.queue_adapter = :solid_queue
+    config.solid_queue.connects_to = { database: { writing: :queue } }
+  end
 
-  # Ignore bad email addresses and do not raise email delivery errors.
-  # Set this to true and configure the email server for immediate delivery to raise delivery errors.
-  # config.action_mailer.raise_delivery_errors = false
+  # Action Mailer host
+  config.action_mailer.default_url_options = {
+    host: ENV.fetch("APP_HOST", "localhost")
+  }
 
-  # Set host to be used by links generated in mailer templates.
-  config.action_mailer.default_url_options = { host: "example.com" }
-
-  # Specify outgoing SMTP server. Remember to add smtp/* credentials via bin/rails credentials:edit.
-  # config.action_mailer.smtp_settings = {
-  #   user_name: Rails.application.credentials.dig(:smtp, :user_name),
-  #   password: Rails.application.credentials.dig(:smtp, :password),
-  #   address: "smtp.example.com",
-  #   port: 587,
-  #   authentication: :plain
-  # }
-
-  # Enable locale fallbacks for I18n (makes lookups for any locale fall back to
-  # the I18n.default_locale when a translation cannot be found).
+  # Locale fallbacks
   config.i18n.fallbacks = true
 
-  # Do not dump schema after migrations.
+  # Do not dump schema after migrations
   config.active_record.dump_schema_after_migration = false
 
-  # Only use :id for inspections in production.
-  config.active_record.attributes_for_inspect = [ :id ]
-
-  # Enable DNS rebinding protection and other `Host` header attacks.
-  # config.hosts = [
-  #   "example.com",     # Allow requests from example.com
-  #   /.*\.example\.com/ # Allow requests from subdomains like `www.example.com`
-  # ]
-  #
-  # Skip DNS rebinding protection for the default health check endpoint.
-  # config.host_authorization = { exclude: ->(request) { request.path == "/up" } }
+  # Only use :id for inspections in production
+  config.active_record.attributes_for_inspect = [:id]
 end
