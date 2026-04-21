@@ -18,9 +18,8 @@ The app is intentionally optimized for that workflow instead of a landing page. 
 - Salary insights through the UI: country headcount, minimum salary, average salary, maximum salary, average salary for a selected job title in a selected country, salary bands, and top roles.
 - Seed script: deterministic 10,000 employee load using `db/seed_data/first_names.txt` and `db/seed_data/last_names.txt`.
 - Backend and frontend are fully wired end to end.
-- Tests cover the core API, model, salary insight, and seed behavior.
+- Tests cover the core API, model, salary insight, seed behavior, and key frontend hooks/components.
 - Product, architecture, trade-off, AI usage, and demo notes are documented in [docs/assessment-notes.md](docs/assessment-notes.md).
-- Commit history is incremental and shows the implementation evolution.
 
 ## Requirement Coverage
 
@@ -34,7 +33,7 @@ The app is intentionally optimized for that workflow instead of a landing page. 
 | Average salary for a given job title in a country | Implemented | Available in the salary insights panel |
 | Additional useful metrics for HR manager | Implemented | Country employee count, salary band distribution, and top roles by headcount |
 | Seed 10,000 employees from `first_names.txt` and `last_names.txt` | Implemented | `db/seeds.rb` uses deterministic batched inserts |
-| Fast, deterministic tests for core behavior | Implemented | Request specs, model specs, and seed data specs are included |
+| Fast, deterministic tests for core behavior | Implemented | Request specs, model specs, seed data specs, and frontend Vitest coverage are included |
 | Deployed software | Not included | Deployment path is documented, but no live deployment URL is checked in |
 | Video demo | Not included | Suggested demo flow is documented in [docs/assessment-notes.md](docs/assessment-notes.md) |
 
@@ -48,7 +47,7 @@ See [docs/er-diagram.md](docs/er-diagram.md) for the dedicated model diagram.
 - Frontend: React, TypeScript, Vite, MUI Data Grid
 - API client: Axios with response camel-casing
 - Cache/search: Redis-backed Rails cache and Elasticsearch search with SQL fallback
-- Tests: RSpec, FactoryBot, request specs, model specs
+- Tests: RSpec, FactoryBot, request specs, model specs, Vitest, React Testing Library
 
 ## Product Scope
 
@@ -244,6 +243,21 @@ npm run dev -- --host --port 4000
 ```
 
 Open `http://localhost:4000`.
+
+### 7. Run the test suites
+
+Backend:
+
+```sh
+bundle exec rspec
+```
+
+Frontend:
+
+```sh
+cd payroll-web
+npm test -- --run
+```
 
 ## Step-by-Step Product Demo
 
